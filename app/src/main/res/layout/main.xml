@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootView"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@android:color/white">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <org.olpc.avatargen.GameTextureView
+            android:id="@+id/mGameSurfaceView"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"/>
+
+        <RelativeLayout
+            android:layout_width="220dp"
+            android:layout_height="fill_parent"
+            android:id="@+id/rightPanel">
+
+            <View
+                android:layout_width="10dp"
+                android:layout_height="fill_parent"
+                android:background="@drawable/shadow_left"/>
+            <ScrollView
+                android:id="@+id/leftPane"
+                android:background="@android:color/white"
+                android:layout_alignParentEnd="true"
+                android:layout_width="@dimen/detailparts_width"
+                android:layout_height="fill_parent">
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/selectPart"/>
+            </ScrollView>
+            <LinearLayout
+                android:id="@+id/detailParts"
+                android:orientation="horizontal"
+                android:layout_alignParentEnd="true"
+                android:translationX="@dimen/detailparts_width"
+                android:layout_width="@dimen/detailparts_width"
+                android:layout_height="fill_parent">
+
+                <ScrollView
+                    android:id="@+id/detailItems"
+                    android:background="@android:color/white"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"/>
+
+                <ImageView
+                    android:id="@+id/closeButton"
+                    android:background="#c6c6c5"
+                    android:src="@drawable/ic_play_white_48dp"
+                    android:layout_width="40dp"
+                    android:layout_height="fill_parent"
+                    android:contentDescription="Back Button"/>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+    </LinearLayout>
+    <org.olpc.avatargen.FloatingActionButton2
+        android:id="@+id/cameraButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="182dp"
+        android:layout_marginBottom="60dp"
+        app:floatingActionButtonColor="#E71E6C"
+        app:floatingActionButtonSize="normal"/>
+    <ImageView
+        android:id="@+id/screenShotView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:background="@android:color/white"/>
+    <ImageButton
+        android:id="@+id/backButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="30dp"
+        android:src="@drawable/ic_arrow_left_grey8_36dp"
+        android:background="@android:color/white"/>
+</RelativeLayout>

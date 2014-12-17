@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="content" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="500px" height="500px" viewBox="0 0 500 500" enable-background="new 0 0 500 500" xml:space="preserve">
+<rect id="position" x="0.5" y="0.5" fill="none" width="499" height="499"/>
+<g id="chooser">
+	<polygon fill="#32B096" points="304.07,177.615 270.328,195.469 250.323,275.834 232.167,195.469 204.91,177.615 146.542,177.615 
+		146.542,482.617 352.542,482.617 352.542,177.615 	"/>
+	<polygon fill="#32B096" points="148.542,177.615 145.463,177.615 126.791,191.96 71.104,262.96 71.104,443.936 132.36,443.936 
+		132.36,281.059 148.542,275.661 	"/>
+	<polygon fill="#32B096" points="350.542,177.615 353.62,177.615 372.292,191.96 427.979,262.96 427.979,443.936 366.725,443.936 
+		366.725,281.059 350.542,275.661 	"/>
+</g>
+<g id="clothes">
+	<polygon fill="#298975" points="232.167,195.469 202.908,232.167 198.477,177.615 204.91,177.615 	"/>
+	<polygon fill="#2D9B85" points="232.167,195.469 194.045,228.838 198.477,177.615 204.91,177.615 	"/>
+	<polyline fill="#298975" points="304.07,177.615 299.639,232.167 270.379,195.469 	"/>
+	<polyline fill="#2D9B85" points="304.07,177.615 308.501,228.838 270.379,195.469 	"/>
+</g>
+</svg>

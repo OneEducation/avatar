@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/Users/dongseok0/adt-bundle-mac-x86_64-20140702/sdk/extras/android/m2repository/com/android/support/support-annotations/21.0.2/support-annotations-21.0.2.jar"
+        jumboMode="false"
+        revision="21.1.1"
+        sha1="99373741f99a0556ee293c41e8faa1ca3ae8a4e6">
+        <dex dex="/Users/dongseok0/AndroidstudioProjects/AvatarGen/app/build/intermediates/pre-dexed/debug/support-annotations-21.0.2-a5e56b6c2fc8a4232c4cbb9f4629524d5367e87a.jar" />
+    </item>
+    <item
+        jar="/Users/dongseok0/AndroidstudioProjects/AvatarGen/app/build/intermediates/exploded-aar/com.shamanland/fab/0.0.6/classes.jar"
+        jumboMode="false"
+        revision="21.1.1"
+        sha1="e388595587aab9cb9f919f90de90b1831db908f5">
+        <dex dex="/Users/dongseok0/AndroidstudioProjects/AvatarGen/app/build/intermediates/pre-dexed/debug/classes-507e3cf5d5cf70a74391d991ce2394dc5f750a51.jar" />
+    </item>
+    <item
+        jar="/Users/dongseok0/AndroidstudioProjects/AvatarGen/app/build/intermediates/exploded-aar/com.daimajia.androidanimations/library/1.1.3/classes.jar"
+        jumboMode="false"
+        revision="21.1.1"
+        sha1="8cec50fc9cc847bad0d6ed7d93814f4b34744521">
+        <dex dex="/Users/dongseok0/AndroidstudioProjects/AvatarGen/app/build/intermediates/pre-dexed/debug/classes-4bec446ed29bda1123eaebe9ebde322b557947c6.jar" />
+    </item>
+    <item
+        jar="/Users/dongseok0/.gradle/caches/modules-2/files-2.1/com.nineoldandroids/library/2.4.0/e9b63380f3a242dbdbf103a2355ad7e43bad17cb/library-2.4.0.jar"
+        jumboMode="false"
+        revision="21.1.1"
+        sha1="e9b63380f3a242dbdbf103a2355ad7e43bad17cb">
+        <dex dex="/Users/dongseok0/AndroidstudioProjects/AvatarGen/app/build/intermediates/pre-dexed/debug/library-2.4.0-92326900a2f917be342f416ab58b8004e653a637.jar" />
+    </item>
+    <item
+        jar="/Users/dongseok0/AndroidstudioProjects/AvatarGen/app/libs/svg-android.jar"
+        jumboMode="false"
+        revision="21.1.1"
+        sha1="25aa82d989e7cea9af961a0b8e73858e5fa7d2eb">
+        <dex dex="/Users/dongseok0/AndroidstudioProjects/AvatarGen/app/build/intermediates/pre-dexed/debug/svg-android-239f1ee69fb40bcb2a5fc5965c29172475efd43f.jar" />
+    </item>
+    <item
+        jar="/Users/dongseok0/AndroidstudioProjects/AvatarGen/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.2/classes.jar"
+        jumboMode="false"
+        revision="21.1.1"
+        sha1="d1bf02de1c56d942e7a9d093b8610ba1ef4128e3">
+        <dex dex="/Users/dongseok0/AndroidstudioProjects/AvatarGen/app/build/intermediates/pre-dexed/debug/classes-1b35e10878b3820c6159ed44bcdceb5f5d328dde.jar" />
+    </item>
+    <item
+        jar="/Users/dongseok0/AndroidstudioProjects/AvatarGen/app/build/intermediates/exploded-aar/com.daimajia.easing/library/1.0.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.1"
+        sha1="e88a9ed27f98f8c0701d03d5553ce6111ca34a5b">
+        <dex dex="/Users/dongseok0/AndroidstudioProjects/AvatarGen/app/build/intermediates/pre-dexed/debug/classes-e626e209d8214d46a95c7fd76623d920e79134e5.jar" />
+    </item>
+    <item
+        jar="/Users/dongseok0/AndroidstudioProjects/AvatarGen/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.2/classes.jar"
+        jumboMode="false"
+        revision="21.1.1"
+        sha1="7ae2d38807a43b2f2185ff4089a92c790b579e54">
+        <dex dex="/Users/dongseok0/AndroidstudioProjects/AvatarGen/app/build/intermediates/pre-dexed/debug/classes-e578ef43cfe5bd2f72422477eba82b738b1411ad.jar" />
+    </item>
+    <item
+        jar="/Users/dongseok0/AndroidstudioProjects/AvatarGen/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.2/libs/internal_impl-21.0.2.jar"
+        jumboMode="false"
+        revision="21.1.1"
+        sha1="962e8b12569c56dbdcf8367eb4eac8bb129cd18f">
+        <dex dex="/Users/dongseok0/AndroidstudioProjects/AvatarGen/app/build/intermediates/pre-dexed/debug/internal_impl-21.0.2-e0548b32ad8745696bd695148e4f2b7467016318.jar" />
+    </item>
+
+</items>
