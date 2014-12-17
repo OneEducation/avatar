@@ -1,5 +1,6 @@
 package org.olpc.avatargen;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
@@ -14,6 +15,7 @@ import java.util.Date;
  */
 public class FloatingActionButton2 extends FloatingActionButton {
     TransformRunnable runnable = new TransformRunnable(this);
+    //ObjectAnimator      colorAnimator;        //ObjectAnimator.ofArgb requires v21
 
     public FloatingActionButton2(Context context) {
         super(context);
@@ -29,6 +31,7 @@ public class FloatingActionButton2 extends FloatingActionButton {
 
     public FloatingActionButton2 setInterpolator(Interpolator interpolator) {
         runnable.setInterpolator(interpolator);
+        //colorAnimator.setInterpolator(interpolator);
         return this;
     }
 
@@ -42,6 +45,7 @@ public class FloatingActionButton2 extends FloatingActionButton {
 
     public FloatingActionButton2 setBGColorTransition(int color) {
         runnable.setColor(color);
+        //colorAnimator = ObjectAnimator.ofArgb(this, "color", getColor(), color);
         return this;
     }
 
@@ -52,10 +56,12 @@ public class FloatingActionButton2 extends FloatingActionButton {
 
     public FloatingActionButton2 setDuration(int duration) {
         runnable.setDuration(duration);
+        //colorAnimator.setDuration(duration);
         return this;
     }
 
     public void start() {
+        //colorAnimator.start();
         runnable.start();
     }
 

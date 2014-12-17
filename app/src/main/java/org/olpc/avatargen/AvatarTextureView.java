@@ -1,7 +1,5 @@
 package org.olpc.avatargen;
 
-import java.util.Random;
-
 import org.olpc.avatargen.AssetDatabase.ConfigPart;
 
 import android.content.Context;
@@ -10,127 +8,37 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.SurfaceTexture;
-import android.graphics.drawable.BitmapDrawable;
-import android.os.Debug;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 
-public class GameTextureView extends TextureView implements TextureView.SurfaceTextureListener {
-
-    // Random number generator
-    private static final Random RANDOM = new Random();
-
+public class AvatarTextureView extends TextureView implements TextureView.SurfaceTextureListener {
     /**
      * The frame rate we will attempt to achieve with the wallpaper
      */
-    public static final int FRAME_RATE = 60;
-
-    /**
-     * The width of the wallpaper, as a percent of the height of the phone.
-     */
-    public static final int SCENE_WIDTH = 150;
-
-    /**
-     * Duration of animation to slide between screens (in milliseconds).
-     */
-    public static final long SLIDE_TIME = 100;
-
-    /**
-     * The set of background colors
-     */
-    private static final int[] COLORS =
-            {
-                    0x59c0ce,
-                    0xe684a9,
-                    0xfef48b,
-                    0x9dcb7a,
-                    0xd65143,
-            };
-
-    /**
-     * Min scale size of android, where 1 means the width of the android's head just fits on the screen (width-wise)
-     */
-    public static final float MIN_SCALE = 1.0f;
-
-    /**
-     * Max scale size of android, where 1 means the width of the android's head just fits on the screen (width-wise)
-     */
-    public static final float MAX_SCALE = 1.25f;
-
-    /**
-     * Min off-centering offset (in units of the diameter of the android's eye)
-     */
-    public static final float MIN_OFFSET = -1.5f;
-
-    /**
-     * Max off-centering offset (in units of the diameter of the android's eye)
-     */
-    public static final float MAX_OFFSET = 1.5f;
-
-    /**
-     * Min rotation angle (degrees)
-     */
-    public static final int MIN_ROTATION = 5;
-
-    /**
-     * Max rotation angle (degrees)
-     */
-    public static final int MAX_ROTATION = 15;
-
-    /**
-     * Drift time in millis.
-     */
-    public static final long DRIFT_TIME = 15000L;
-
-    /**
-     * Drift amount (in units of the diameter of the android's eye).
-     */
-    public static final float DRIFT_AMOUNT = 5f;
+    public static final int FRAME_RATE = 40;
 
     /**
      * Amount of time before the next scene starts to fades in (make it plus the transition time less than the drift time), in millis.
      */
     public static final long SCENE_TIME = 5000L;
-
-    /**
-     * Amount of time fading between scene transitions, in millis.
-     */
-    public static final long SCENE_TRANSITION = 1500L;
+	private Context context;		//context to use resources
+	private RenderEngine engine;
 	
-	//SurfaceHolder gameHolder;				//gameHolder.unlockCanvasAndPost 
-	public static Context gameContext;		//context to use resources
-	
-	public RenderEngine engine;
-	
-	public GameTextureView(Context context, AttributeSet attrs) {		
+	public AvatarTextureView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		
-		gameContext = context;
+		this.context = context;
 		setSurfaceTextureListener(this);
 		setOpaque(false);
-		Log.v("main", "GameSurface Constructer finish");
 	}
 	
-	public void initilize(AssetDatabase db) {
-		//gameHolder = getHolder();
-		//gameHolder.addCallback(this);
-		
+	public void initialize(AssetDatabase db) {
 		engine = new RenderEngine();
 		engine.init(this, db);
-	}
-
-	public Bitmap LoadingBitmapFromResource(int id){
-		Bitmap output;
-		Util.debug("Memory  : " + Long.toString(Debug.getNativeHeapAllocatedSize()));
-		BitmapDrawable drawableLocal = (BitmapDrawable) getResources().getDrawable(id);
-		output = drawableLocal.getBitmap();
-		return output;
 	}
 
 	@Override
@@ -138,23 +46,6 @@ public class GameTextureView extends TextureView implements TextureView.SurfaceT
 		engine.handleTouch(event);
 		return true;
 	}
-	
-//	@Override
-//	public void surfaceCreated(SurfaceHolder holder) {	
-//		
-//	}
-//
-//	@Override
-//	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-//		//Log.v("main", "surface change"+ "\tThread State : " + gameThread.getState().toString());
-//		engine.setScreen(width, height);
-//		//engine.postDraw();
-//	}
-//	
-//	@Override
-//	public void surfaceDestroyed(SurfaceHolder holder) {
-//		engine.destroy();
-//	}
 	
 	public void setConfig(ConfigPart part, String item) {
 		engine.setConfig(part, item);
@@ -212,38 +103,6 @@ public class GameTextureView extends TextureView implements TextureView.SurfaceT
         private AndroidConfig getNextConfig() {
             // Return a random config
             return assetDatabase.getRandomConfig();
-        }
-
-        /**
-         * Gets a random background color, ensuring it isn't the same as the last color.
-         */
-        private int getNextColor() {
-            int index;
-            do {
-                index = RANDOM.nextInt(COLORS.length);
-            } while (index == lastColorIndex);
-            lastColorIndex = index;
-            return COLORS[index];
-        }
-
-        private ZoomInfo createRandomZoomInfo() {
-            int angle = MIN_ROTATION + RANDOM.nextInt(MAX_ROTATION - MIN_ROTATION);
-            if (RANDOM.nextBoolean()) {
-                angle = -angle;
-            }
-            final float offsetX = MIN_OFFSET + RANDOM.nextFloat() * (MAX_OFFSET - MIN_OFFSET);
-            final float offsetY = MIN_OFFSET + RANDOM.nextFloat() * (MAX_OFFSET - MIN_OFFSET);
-            int driftAngle = (int) (Math.atan2(offsetY, offsetX) * 180 / Math.PI);
-            return new ZoomInfo(
-                    MIN_SCALE + RANDOM.nextFloat() * (MAX_SCALE - MIN_SCALE),
-                    offsetX,
-                    offsetY,
-                    angle,
-                    RANDOM.nextBoolean(),
-                    DRIFT_AMOUNT,
-                    DRIFT_TIME,
-                    driftAngle
-            );
         }
 
         public void init(TextureView surfaceHolder, AssetDatabase db) {
@@ -344,12 +203,10 @@ public class GameTextureView extends TextureView implements TextureView.SurfaceT
         public void setScreen(int width, int height) {
         	this.width = width;
         	this.height = height;
-        	//android.setScreenWidth(width);
-        	android.setDimensions(width, height);        	
+        	android.setDimensions(width, height);
         }
 
         public void doRandomAnimation() {
-            //Log.d("ANDROIDIFY WALLPAPER", "Screen tapped.");
             android.addRandomAnimation(true);
         }
 
@@ -426,32 +283,26 @@ public class GameTextureView extends TextureView implements TextureView.SurfaceT
 
 
 	@Override
-	public void onSurfaceTextureAvailable(SurfaceTexture arg0, int width,
-			int height) {
-		// TODO Auto-generated method stub
+	public void onSurfaceTextureAvailable(SurfaceTexture arg0, int width, int height) {
 		engine.setScreen(width, height);
 		
 	}
 
 	@Override
 	public boolean onSurfaceTextureDestroyed(SurfaceTexture arg0) {
-		// TODO Auto-generated method stub
 		engine.destroy();
 		return false;
 	}
 
 	@Override
-	public void onSurfaceTextureSizeChanged(SurfaceTexture arg0, int width,
-			int height) {
-		// TODO Auto-generated method stub
+	public void onSurfaceTextureSizeChanged(SurfaceTexture arg0, int width,	int height) {
 		engine.setScreen(width, height);
 		
 	}
 
 	@Override
 	public void onSurfaceTextureUpdated(SurfaceTexture arg0) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 

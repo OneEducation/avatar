@@ -12,7 +12,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
-        <org.olpc.avatargen.GameTextureView
+        <org.olpc.avatargen.AvatarTextureView
             android:id="@+id/mGameSurfaceView"
             android:layout_width="0dp"
             android:layout_height="fill_parent"

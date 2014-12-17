@@ -28,8 +28,6 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.AnticipateOvershootInterpolator;
 import android.view.animation.BounceInterpolator;
 import android.widget.ImageButton;
@@ -39,7 +37,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.ScrollView;
 
 public class MainActivity extends Activity {
-    private GameTextureView         gameSurfaceView;        // main view for draw avatar
+    private AvatarTextureView avatarView;        // main view for draw avatar
     private LinearLayout 	        selectPartView;         // select parts view - 1st depth
     private LinearLayout	        detailPartView;         // detail parts view for menu - 2nd depth
     private ScrollView		        detailItemsView;        // scroll view to add items - attach to detailPartView
@@ -106,7 +104,7 @@ public class MainActivity extends Activity {
         }
 
         setContentView(R.layout.main);
-    	gameSurfaceView = (GameTextureView)findViewById(R.id.mGameSurfaceView);
+    	avatarView = (AvatarTextureView)findViewById(R.id.mGameSurfaceView);
     	selectPartView = (LinearLayout)findViewById(R.id.selectPart);
     	detailPartView = (LinearLayout)findViewById(R.id.detailParts);
     	detailItemsView = (ScrollView)findViewById(R.id.detailItems);
@@ -142,7 +140,7 @@ public class MainActivity extends Activity {
         backButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                switch(mStatus) {
+                switch (mStatus) {
                     case making:
                         setResult(Activity.RESULT_CANCELED);
                         finish();
@@ -161,7 +159,7 @@ public class MainActivity extends Activity {
 
         Util.debug("start init asset DB");
     	db = new AssetDatabase(getAssets(), getResources());
-    	gameSurfaceView.initilize(db);
+    	avatarView.initialize(db);
         Util.debug("end init asset DB");
 
         Util.debug("start making menu");
@@ -217,7 +215,7 @@ public class MainActivity extends Activity {
 				@Override
 				public void onClick(View v) {
 					Integer color = (Integer)v.getTag();
-					gameSurfaceView.setConfig(ConfigPart.skinColor, color.toString());
+					avatarView.setConfig(ConfigPart.skinColor, color.toString());
 				}
 			});
     		LL.addView(vv);
@@ -240,7 +238,7 @@ public class MainActivity extends Activity {
 				@Override
 				public void onClick(View v) {
 					Integer color = (Integer)v.getTag();
-					gameSurfaceView.setConfig(ConfigPart.hairColor, color.toString());
+					avatarView.setConfig(ConfigPart.hairColor, color.toString());
 				}
 			});
     		LL.addView(vv);
@@ -278,7 +276,7 @@ public class MainActivity extends Activity {
 
                         @Override
                         public void onClick(View v) {
-                            gameSurfaceView.setConfig(part, (String)v.getTag());
+                            avatarView.setConfig(part, (String) v.getTag());
                         }
                     });
 
@@ -321,8 +319,8 @@ public class MainActivity extends Activity {
 //	}
 	
 	private void takeScreen() {
-        bitmapHead = gameSurfaceView.takeScreenShot(true, 300, 300);   // head
-        bitmapBody = gameSurfaceView.takeScreenShot(false, 600, 600);
+        bitmapHead = avatarView.takeScreenShot(true, 300, 300);   // head
+        bitmapBody = avatarView.takeScreenShot(false, 600, 600);
         screenShotView.setImageBitmap(bitmapBody);
         changeMode(Status.screenShot);
 	}
@@ -371,7 +369,7 @@ public class MainActivity extends Activity {
 
         switch(status) {
             case making:
-                YoYo.with(Techniques.BounceInLeft).duration(1500).playOn(gameSurfaceView);
+                YoYo.with(Techniques.BounceInLeft).duration(1500).playOn(avatarView);
                 YoYo.with(Techniques.BounceInRight).duration(1500).playOn(findViewById(R.id.rightPanel));
                 YoYo.with(Techniques.TakingOff).duration(1000).playOn(screenShotView);
                 fabCamera.animate().setInterpolator(new AnticipateOvershootInterpolator()).setDuration(1300).translationX(dipToPixels(0)).rotation(0).start();
@@ -380,7 +378,7 @@ public class MainActivity extends Activity {
                 break;
 
             case screenShot:
-                YoYo.with(Techniques.SlideOutLeft).duration(1000).playOn(gameSurfaceView);
+                YoYo.with(Techniques.SlideOutLeft).duration(1000).playOn(avatarView);
                 YoYo.with(Techniques.SlideOutRight).duration(1000).playOn(findViewById(R.id.rightPanel));
                 YoYo.with(Techniques.BounceIn).duration(1000).playOn(screenShotView);
                 fabCamera.animate().setInterpolator(new BounceInterpolator()).setDuration(1300).translationX(dipToPixels(150)).rotation(360).start();
