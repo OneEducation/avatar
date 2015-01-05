@@ -98,23 +98,23 @@ public class Constants {
     public static final PointF POINT_CENTER_OF_RIGHT_FOOT = new PointF(CENTER_X + 43.046f, 470.5f); //TOP_Y + 355.221f);
 
     // Resize limits (as a fraction of the default Android logo)
-    public static final float RESIZE_HEAD_MIN_X = 0.8f;
-    public static final float RESIZE_HEAD_MAX_X = 1.2f;
-    public static final float RESIZE_HEAD_MIN_Y = 0.8f;
-    public static final float RESIZE_HEAD_MAX_Y = 1.2f;
+    public static final float RESIZE_HEAD_MIN_X = 0.7f;
+    public static final float RESIZE_HEAD_MAX_X = 1.3f;
+    public static final float RESIZE_HEAD_MIN_Y = 0.7f;
+    public static final float RESIZE_HEAD_MAX_Y = 1.3f;
 
     public static final float RESIZE_BODY_MIN_X = 0.8f;
     public static final float RESIZE_BODY_MAX_X = 1.20f;
-    public static final float RESIZE_BODY_MIN_Y = 0.6f;
-    public static final float RESIZE_BODY_MAX_Y = 1.5f;
+    public static final float RESIZE_BODY_MIN_Y = 0.8f;
+    public static final float RESIZE_BODY_MAX_Y = 1.3f;
 
     public static final float RESIZE_ARMS_MIN_X = 0.5f;
     public static final float RESIZE_ARMS_MAX_X = 1.2f;
     public static final float RESIZE_ARMS_MIN_Y = 0.6f;
-    public static final float RESIZE_ARMS_MAX_Y = 1.5f;
+    public static final float RESIZE_ARMS_MAX_Y = 1.4f;
 
     public static final float RESIZE_LEGS_MIN_X = 0.5f;
-    public static final float RESIZE_LEGS_MAX_X = 1.1f;
+    public static final float RESIZE_LEGS_MAX_X = 1.2f;
     public static final float RESIZE_LEGS_MIN_Y = 0.8f;
     public static final float RESIZE_LEGS_MAX_Y = 2.0f;
 

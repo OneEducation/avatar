@@ -662,18 +662,19 @@ public class AndroidDrawer {
             canvas.scale(droidBody.scaleX, droidBody.scaleY, POINT_TOP_OF_BODY.x, POINT_TOP_OF_BODY.y);
             canvas.clipPath(bodyClip);
             droidBody.picture.draw(canvas);
-            if (shirtBody != null) {
-                shirtBody.draw(canvas);
-            }
-            canvas.restore();
 //            if (shirtBody != null) {
-//                // Scale shirt body down if necessary
-//                float scale = Math.max(droidBody.scaleX, droidBody.scaleY);
-//                if (scale < 1.2f) {
-//                    canvas.scale(scale / 1.2f, scale / 1.2f, POINT_TOP_OF_BODY.x, POINT_TOP_OF_BODY.y);
-//                }
 //                shirtBody.draw(canvas);
 //            }
+            canvas.restore();
+            if (shirtBody != null) {
+                // Scale shirt body down if necessary
+                //float scale = Math.max(droidBody.scaleX, droidBody.scaleY);
+                //Util.debug(""+droidBody.scaleX);
+                if (droidBody.scaleX < 1.2f) {
+                    canvas.scale(droidBody.scaleX / 1.2f, 1.0f, POINT_TOP_OF_BODY.x, POINT_TOP_OF_BODY.y);
+                }
+                shirtBody.draw(canvas);
+            }
             canvas.restore();
         }
         // Draw arms
@@ -1094,7 +1095,7 @@ public class AndroidDrawer {
         float scaleY = height / headHeight;
         float scaleFactor = Math.min(scaleX, scaleY);
     	Matrix transform = new Matrix();
-        transform.preTranslate(width/2 - POINT_BOTTOM_OF_HEAD.x, (float) (height*0.6 - POINT_BOTTOM_OF_HEAD.y));
+        transform.preTranslate(width/2 - POINT_BOTTOM_OF_HEAD.x, (height - POINT_BOTTOM_OF_HEAD.y)/2);
         transform.preScale(scaleFactor, scaleFactor, POINT_BOTTOM_OF_HEAD.x, POINT_BOTTOM_OF_HEAD.y);
         
     	canvas.drawARGB(0xFF, backgroundRed, backgroundGreen, backgroundBlue);
