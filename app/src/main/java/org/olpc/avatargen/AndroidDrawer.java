@@ -1,8 +1,6 @@
 package org.olpc.avatargen;
 
 import android.graphics.*;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AnticipateOvershootInterpolator;
 import android.view.animation.CycleInterpolator;
 import android.view.animation.LinearInterpolator;
 import com.larvalabs.svgandroid.SVG;
@@ -57,6 +55,7 @@ public class AndroidDrawer {
     private Picture shoes = null;
     private Picture glasses = null;
     private Picture beard = null;
+    private Picture hats = null;
 
     /**
      * The accessories.
@@ -217,6 +216,8 @@ public class AndroidDrawer {
     
     private void setShoes(AssetDatabase db, String shoeConf) {
     	shoes = getPicture(db.getSVGForAsset(ASSET_SHOES, shoeConf, null));
+        if(shoes == null)
+            shoes = getPicture(db.getSVGForAsset(ASSET_SHOES, shoeConf, SHOES));
     }
     
     private void setPants(AssetDatabase db, String pants) {
@@ -235,16 +236,40 @@ public class AndroidDrawer {
     	glasses = getPicture(db.getSVGForAsset(ASSET_GLASSES, glassesConf, null));
 	}
 
-	private void setShrit(AssetDatabase db, String shirt) {
+	private void setShirt(AssetDatabase db, String shirt) {
 		shirtBody = getPicture(db.getSVGForAsset(ASSET_SHIRT, shirt, SHIRT_BODY));
 		shirtArm = getPicture(db.getSVGForAsset(ASSET_SHIRT, shirt, SHIRT_ARM));
 		shirtTop = getPicture(db.getSVGForAsset(ASSET_SHIRT, shirt, SHIRT_TOP));		
 	}
+
+    private void setHats(AssetDatabase db, String item) {
+        hats = getPicture(db.getSVGForAsset(ASSET_HATS, item, HATS));
+    }
+
+    private void setAccessories(AssetDatabase db, Accessory accessory) {
+        accessories.add(accessory, db.loadAccessory(accessory));
+    }
+
+    private void setSets(AssetDatabase db, String set) {
+        setShirt(db, set);
+        setPants(db, set);
+        setShoes(db, set);
+        setHats(db, set);
+    }
     
     public void setConfig(AssetDatabase db, ConfigPart part, String item) {
     	switch(part) {
-    	case accessories:
-    		break;
+        case sets:
+            setSets(db, item);
+            break;
+
+        case hats:
+            setHats(db, item);
+            break;
+
+//    	case accessories:
+//            setAccessories(db, (Accessory)item);
+//    		break;
     		
     	case skinColor:
     		setSkinColor(db,Integer.parseInt(item));
@@ -259,7 +284,7 @@ public class AndroidDrawer {
     		break;
     		
     	case shirt:
-    		setShrit(db, item);
+    		setShirt(db, item);
     		break;
     		
     	case glasses:
@@ -267,7 +292,7 @@ public class AndroidDrawer {
     		break;
     		
     	case hair:
-    		setHair(db,item);
+    		setHair(db, item);
     		break;
     		
     	case hairColor:
@@ -279,8 +304,7 @@ public class AndroidDrawer {
     	}
     }
 
-
-	/**
+    /**
      * Sets a new android config.
      * @param config the new configuration.
      * @param db the asset database, for loading clothing and accessory vector graphics.
@@ -456,9 +480,9 @@ public class AndroidDrawer {
         // Compute height of droid
         float topHeight = Math.min(HEAD_BOUNDS_TOP, hairBounds.top);
         // Also consider a tall hat
-        SVG hat = accessories.getSVGForType(Accessory.TYPE_HEAD);
-        if (hat != null && hat.getLimits() != null) {
-            topHeight = Math.min(topHeight, hat.getLimits().top);
+        //SVG hat = accessories.getSVGForType(Accessory.TYPE_HEAD);
+        if (hats != null) { // && hat.getLimits() != null) {
+            topHeight = Math.min(topHeight, 50); //hat.getLimits().top);
         }
         float tHeight = topHeight;
         headHeight = (POINT_BOTTOM_OF_HEAD.y - tHeight) * droidHead.scaleY + (POINT_TOP_OF_BODY.y - POINT_BOTTOM_OF_HEAD.y);
@@ -662,17 +686,11 @@ public class AndroidDrawer {
             canvas.scale(droidBody.scaleX, droidBody.scaleY, POINT_TOP_OF_BODY.x, POINT_TOP_OF_BODY.y);
             canvas.clipPath(bodyClip);
             droidBody.picture.draw(canvas);
-//            if (shirtBody != null) {
-//                shirtBody.draw(canvas);
-//            }
             canvas.restore();
             if (shirtBody != null) {
-                // Scale shirt body down if necessary
-                //float scale = Math.max(droidBody.scaleX, droidBody.scaleY);
-                //Util.debug(""+droidBody.scaleX);
-                if (droidBody.scaleX < 1.2f) {
-                    canvas.scale(droidBody.scaleX / 1.2f, 1.0f, POINT_TOP_OF_BODY.x, POINT_TOP_OF_BODY.y);
-                }
+                float scaleX = droidBody.scaleX < 1.3f ? droidBody.scaleX / 1.3f : 1.0f;
+                float scaleY = droidBody.scaleY < 1.2f ? droidBody.scaleY / 1.2f : 1.0f;
+                canvas.scale(scaleX, scaleY, POINT_TOP_OF_BODY.x, POINT_TOP_OF_BODY.y);
                 shirtBody.draw(canvas);
             }
             canvas.restore();
@@ -892,7 +910,7 @@ public class AndroidDrawer {
         }
         // Draw beard and hair in front, then glasses, then head accessory
         {
-            Picture accessory = accessories.getPictureForType(Accessory.TYPE_HEAD);
+            //Picture accessory = accessories.getPictureForType(Accessory.TYPE_HEAD);
             Picture mouthAccessory = accessories.getPictureForType(Accessory.TYPE_MOUTH);
             canvas.save();
             if (headTilt != null) {
@@ -923,8 +941,8 @@ public class AndroidDrawer {
             if (mouthAccessory != null) {
                 mouthAccessory.draw(canvas);
             }
-            if (accessory != null) {
-                accessory.draw(canvas);
+            if (hats != null) {
+                hats.draw(canvas);
             }
             canvas.restore();
         }
@@ -1185,7 +1203,7 @@ public class AndroidDrawer {
         
         // Draw beard and hair in front, then glasses, then head accessory
         {
-            Picture accessory = accessories.getPictureForType(Accessory.TYPE_HEAD);
+            //Picture accessory = accessories.getPictureForType(Accessory.TYPE_HEAD);
             Picture mouthAccessory = accessories.getPictureForType(Accessory.TYPE_MOUTH);
             canvas.save();
  
@@ -1211,8 +1229,8 @@ public class AndroidDrawer {
             if (mouthAccessory != null) {
                 mouthAccessory.draw(canvas);
             }
-            if (accessory != null) {
-                accessory.draw(canvas);
+            if (hats != null) {
+                hats.draw(canvas);
             }
             canvas.restore();
         }

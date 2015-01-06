@@ -27,8 +27,10 @@ public class AvatarTextureView extends TextureView implements TextureView.Surfac
     public static final long SCENE_TIME = 5000L;
 	private Context context;		//context to use resources
 	private RenderEngine engine;
-	
-	public AvatarTextureView(Context context, AttributeSet attrs) {
+    private int width;
+    private int height;
+
+    public AvatarTextureView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		
 		this.context = context;
@@ -39,6 +41,8 @@ public class AvatarTextureView extends TextureView implements TextureView.Surfac
 	public void initialize(AssetDatabase db) {
 		engine = new RenderEngine();
 		engine.init(this, db);
+        engine.setScreen(width, height);
+        engine.setVisibility(true);
 	}
 
 	@Override
@@ -53,7 +57,8 @@ public class AvatarTextureView extends TextureView implements TextureView.Surfac
 	
     @Override
 	protected void onVisibilityChanged(View changedView, int visibility) {
-		engine.setVisibility(visibility == View.VISIBLE);
+        if(engine != null)
+		    engine.setVisibility(visibility == View.VISIBLE);
 		super.onVisibilityChanged(changedView, visibility);
 	}
     
@@ -111,7 +116,7 @@ public class AvatarTextureView extends TextureView implements TextureView.Surfac
             android = new AndroidDrawer(assetDatabase);
             //android.setAndroidConfig(getNextConfig(), assetDatabase);
             sceneTime = System.currentTimeMillis();
-            
+
         	paint.setAntiAlias(true);
         	paint.setTextSize(20);
         	paint.setColor(Color.RED);
@@ -231,13 +236,13 @@ public class AvatarTextureView extends TextureView implements TextureView.Surfac
 
                     android.draw(c);
                     
-                    if(Util.debugMode) {
-	                	c.drawText("Mouse Point : X="+matrixTouch[0]+", Y="+matrixTouch[1], 0, 450, paint);
-	                	c.drawText("Head bound : "+ android.droidHead.bound.toShortString() + " / " + android.droidHead.contains(matrixTouch[0], matrixTouch[1]), 0, 500, paint);
-	                	c.drawText("Body bound : "+ android.droidBody.bound.toShortString() + " / " + android.droidBody.contains(matrixTouch[0], matrixTouch[1]), 0, 550, paint);
-	                	c.drawText("Leg bound : "+ android.droidLegs.bound.toShortString() + " / " + android.droidLegs.contains(matrixTouch[0], matrixTouch[1]), 0, 600, paint);
-	                	c.drawText("Arm bound : "+ android.droidArm.bound.toShortString() + " / " + android.droidArm.contains(matrixTouch[0], matrixTouch[1]), 0, 650, paint);
-                    }
+//                    if(Util.debugMode) {
+//	                	c.drawText("Mouse Point : X="+matrixTouch[0]+", Y="+matrixTouch[1], 0, 450, paint);
+//	                	c.drawText("Head bound : "+ android.droidHead.bound.toShortString() + " / " + android.droidHead.contains(matrixTouch[0], matrixTouch[1]), 0, 500, paint);
+//	                	c.drawText("Body bound : "+ android.droidBody.bound.toShortString() + " / " + android.droidBody.contains(matrixTouch[0], matrixTouch[1]), 0, 550, paint);
+//	                	c.drawText("Leg bound : "+ android.droidLegs.bound.toShortString() + " / " + android.droidLegs.contains(matrixTouch[0], matrixTouch[1]), 0, 600, paint);
+//	                	c.drawText("Arm bound : "+ android.droidArm.bound.toShortString() + " / " + android.droidArm.contains(matrixTouch[0], matrixTouch[1]), 0, 650, paint);
+//                    }
 
                     c.restore();
                 }
@@ -284,19 +289,24 @@ public class AvatarTextureView extends TextureView implements TextureView.Surfac
 
 	@Override
 	public void onSurfaceTextureAvailable(SurfaceTexture arg0, int width, int height) {
-		engine.setScreen(width, height);
+        this.width = width;
+        this.height = height;
+		if(engine != null)
+            engine.setScreen(width, height);
 		
 	}
 
 	@Override
 	public boolean onSurfaceTextureDestroyed(SurfaceTexture arg0) {
-		engine.destroy();
+        if(engine != null)
+		    engine.destroy();
 		return false;
 	}
 
 	@Override
 	public void onSurfaceTextureSizeChanged(SurfaceTexture arg0, int width,	int height) {
-		engine.setScreen(width, height);
+        if(engine != null)
+		    engine.setScreen(width, height);
 		
 	}
 

@@ -19,6 +19,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.larvalabs.svgandroid.SVG;
+import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.OkHttpClient;
@@ -80,6 +81,7 @@ public class MainActivity extends Activity {
 			R.drawable.shoesicon,
 			R.drawable.glassesicon,
 			R.drawable.hairicon,
+            R.drawable.hairicon,
 			R.drawable.haircoloricon
 	};
 
@@ -184,6 +186,9 @@ public class MainActivity extends Activity {
 //                //| View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 //                );
 
+        super.onCreate(savedInstanceState);
+        //overridePendingTransition(R.anim.start_enter, R.anim.start_exit);
+
         // Get the intent that started this activity
         Intent intent = getIntent();
         Util.debug(intent.getAction());
@@ -244,25 +249,7 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 switch (mStatus) {
                     case making:
-                        new MaterialDialog.Builder(MainActivity.this)
-                            .title("Discard changes")
-                            .content("If you go back now, you'll lose your changes.")
-                            .positiveText("DISCARD")
-                            .negativeText("KEEP EDITING")
-                            .callback(new MaterialDialog.ButtonCallback() {
-                                @Override
-                                public void onPositive(MaterialDialog dialog) {
-                                    setResult(Activity.RESULT_CANCELED);
-                                    finish();
-                                }
-
-                                @Override
-                                public void onNegative(MaterialDialog dialog) {
-                                    dialog.dismiss();
-                                }
-                            })
-                            .show();
-
+                        showQuitDialog();
                         break;
 
                     case screenShot:
@@ -276,39 +263,56 @@ public class MainActivity extends Activity {
     	detailPartView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
     	detailItemsView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
-        Util.debug("start init asset DB");
-    	db = new AssetDatabase(getAssets(), getResources());
-    	avatarView.initialize(db);
-        Util.debug("end init asset DB");
+        db = new AssetDatabase(getAssets(), getResources());
+        avatarView.initialize(db);
 
-        Util.debug("start making menu");
-    	ArrayList<LinearLayout> arr = new ArrayList<>();
-    	arr.add(makeSkinMenu());
-    	arr.add(makeMenu(ConfigPart.shirt, db.shirtAssets, "chooser"));
-    	arr.add(makeMenu(ConfigPart.pants, db.pantsAssets, "chooser"));
-    	arr.add(makeMenu(ConfigPart.shoes, db.shoeAssets, null));
-    	arr.add(makeMenu(ConfigPart.glasses, db.glassesAssets, null));
-    	arr.add(makeMenu(ConfigPart.hair, db.hairAssets, "chooser"));
-    	arr.add(makeHairMenu());
-        Util.debug("end making menu");
-    	
-    	for(int i=0; i< arr.size(); i++) {
-    		ImageView iv = new ImageView(this);
-    		Drawable d = getResources().getDrawable(icons[i]);
-    		iv.setImageDrawable(d);
-    		iv.setTag(arr.get(i));
-    		iv.setOnClickListener(new OnClickListener() {
-				
-				@Override
-				public void onClick(View v) {
-					detailItemsView.removeAllViews();
-					detailItemsView.addView((View)v.getTag());
-					detailPartView.animate().x(getResources().getDimension(R.dimen.detailparts_width_position_x)).start();
-				}
-			});
-    		selectPartView.addView(iv);
-    		
-    	}
+        for(int i=0; i< icons.length; i++) {
+            ImageView iv = new ImageView(MainActivity.this);
+            Drawable d = getResources().getDrawable(icons[i]);
+            iv.setImageDrawable(d);
+            selectPartView.addView(iv);
+        }
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                Util.debug("start init asset DB");
+                try {
+                    db.scanAssets();
+                } catch(Exception e) {
+                    Util.debug(e.getMessage());
+                }
+                Util.debug("end init asset DB");
+
+                Util.debug("start making menu");
+                ArrayList<LinearLayout> arr = new ArrayList<>();
+                arr.add(makeSkinMenu());
+                arr.add(makeMenu(ConfigPart.shirt, db.shirtAssets, "chooser"));
+                arr.add(makeMenu(ConfigPart.pants, db.pantsAssets, "chooser"));
+                arr.add(makeMenu(ConfigPart.shoes, db.shoeAssets, "chooser"));
+                arr.add(makeMenu(ConfigPart.glasses, db.glassesAssets, "chooser"));
+                arr.add(makeMenu(ConfigPart.hair, db.hairAssets, "chooser"));
+                arr.add(makeMenu(ConfigPart.sets, db.setAssets, "chooser"));
+                arr.add(makeHairMenu());
+                Util.debug("end making menu");
+
+                for(int i=0; i< arr.size(); i++) {
+                    View iv = selectPartView.getChildAt(i);
+                    iv.setTag(arr.get(i));
+                    iv.setOnClickListener(new OnClickListener() {
+
+                        @Override
+                        public void onClick(View v) {
+                            detailItemsView.removeAllViews();
+                            detailItemsView.addView((View)v.getTag());
+                            detailPartView.animate().x(getResources().getDimension(R.dimen.detailparts_width_position_x)).start();
+                        }
+                    });
+                }
+            }
+        }).start();
+
 
         closeButton.setOnClickListener(new OnClickListener() {
 			
@@ -318,15 +322,36 @@ public class MainActivity extends Activity {
 			}
 		});
     	
-        super.onCreate(savedInstanceState);
+
+    }
+
+    private void showQuitDialog() {
+        new MaterialDialog.Builder(MainActivity.this)
+                .title("Quit")
+                .content("If you go back now, you'll lose your changes.")
+                .positiveText("DISCARD")
+                .negativeText("KEEP EDITING")
+                .callback(new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        setResult(Activity.RESULT_CANCELED);
+                        finish();
+                    }
+
+                    @Override
+                    public void onNegative(MaterialDialog dialog) {
+                        dialog.dismiss();
+                    }
+                })
+                .show();
     }
 	
 	private LinearLayout makeSkinMenu() {
-		LinearLayout LL = makeLL();
+		final LinearLayout LL = makeLL();
 	    for(int i = 0; i < SKIN_COLORS.length; i++) {
     		SVG s = db.getSVGForResource(R.raw.avatar_head, ANDROID_COLOR, SKIN_COLORS[i]);	// HAIR_COLORS
 
-    		VectorView vv = new VectorView(getApplicationContext());
+    		final VectorView vv = new VectorView(getApplicationContext());
     		vv.setVectors(new SVG[] {s});
     		vv.setTag(SKIN_COLORS[i]);
     		vv.setOnClickListener(new OnClickListener() {
@@ -337,18 +362,24 @@ public class MainActivity extends Activity {
 					avatarView.setConfig(ConfigPart.skinColor, color.toString());
 				}
 			});
-    		LL.addView(vv);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+
+                    LL.addView(vv);
+                }
+            });
 	    }
 	    return LL;
 	}
 	
 	private LinearLayout makeHairMenu() {
-		LinearLayout LL = makeLL();
+		final LinearLayout LL = makeLL();
 	    for(int i = 0; i < HAIR_COLORS.length; i++) {
 
 	    	SVG s = db.getSVGForAsset(ASSET_HAIR, db.hairAssets.get(1), HAIR_FRONT, HAIR_COLOR_DEFAULT, HAIR_COLORS[i]);
 
-    		VectorView vv = new VectorView(getApplicationContext());
+    		final VectorView vv = new VectorView(getApplicationContext());
     		vv.setVectors(new SVG[] {s});
     		vv.setTag(HAIR_COLORS[i]);
 
@@ -360,7 +391,13 @@ public class MainActivity extends Activity {
 					avatarView.setConfig(ConfigPart.hairColor, color.toString());
 				}
 			});
-    		LL.addView(vv);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+
+                    LL.addView(vv);
+                }
+            });
 	    }
 	    return LL;
 	}
@@ -382,9 +419,9 @@ public class MainActivity extends Activity {
             @Override
             public void run() {
                 for(String item : arrItem) {
-                    SVG s = db.getSVGForAsset(part.name(), item, "chooser");
-                    if(s==null)
-                        s = db.getSVGForAsset(part.name(), item, suffix);
+                    //SVG s = db.getSVGForAsset(part.name(), item, "chooser");
+                    //if(s==null)
+                    SVG s = db.getSVGForAsset(part.name(), item, suffix);
 
                     if(s==null) continue;
 
@@ -412,6 +449,44 @@ public class MainActivity extends Activity {
 
 	    return LL;
 	}
+
+    private LinearLayout makeAccMenu(final ConfigPart part, final ArrayList<Accessory> arrItem, final String suffix) {
+        final LinearLayout LL = makeLL();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for(Accessory item : arrItem) {
+                    SVG s = db.getSVGForAsset(part.name(), item.getName(), "chooser");
+                    if(s==null)
+                        s = db.getSVGForAsset(part.name(), item.getName(), suffix);
+
+                    if(s==null) continue;
+
+                    final VectorView vv = new VectorView(getApplicationContext());
+                    vv.setVectors(new SVG[] {s});
+                    vv.setTag(item);
+                    vv.setOnClickListener(new OnClickListener() {
+
+                        @Override
+                        public void onClick(View v) {
+                            avatarView.setConfig(part, (String)v.getTag());
+                        }
+                    });
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            LL.addView(vv);
+                        }
+                    });
+
+                }
+            }
+        }).start();
+
+        return LL;
+    }
 
 //  no menu!
 //	@Override
@@ -472,8 +547,10 @@ public class MainActivity extends Activity {
                 if(detailPartView != null && detailPartView.getX() == 0) {
                     detailPartView.animate().x(getResources().getDimension(R.dimen.detailparts_width_position_x)).start();
                     return;
+                } else {
+                    showQuitDialog();
+                    return;
                 }
-                break;
 
             case screenShot:
                 changeMode(Status.making);
@@ -540,10 +617,10 @@ public class MainActivity extends Activity {
 //                        .addPart(
 //                                Headers.of("Content-Disposition", "form-data; name=\"title\""),
 //                                RequestBody.create(null, "Square Logo"))
-                        .addFormDataPart("file", null, RequestBody.create(MEDIA_TYPE_PNG, file))
-//                        .addPart(
-//                                Headers.of("Content-Disposition", "form-data; name=\"file\""),
-//                                RequestBody.create(MEDIA_TYPE_PNG, file))
+//                        .addFormDataPart("file", null, RequestBody.create(MEDIA_TYPE_PNG, file))
+                        .addPart(
+                                Headers.of("Content-Disposition", "form-data; name=\"file\""),
+                                RequestBody.create(null, file))
                         .build();
 
                 Request request = new Request.Builder()

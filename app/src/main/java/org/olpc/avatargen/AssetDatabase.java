@@ -24,6 +24,8 @@ public class AssetDatabase {
     public static final String ASSET_GLASSES = "glasses";
     public static final String ASSET_BEARD = "beard";
     public static final String ASSET_ACCESSORIES = "accessories";
+    public static final String ASSET_SETS = "sets";
+    public static final String ASSET_HATS = "hats";
 
     public static final String SHIRT_ARM = "arm";
     public static final String SHIRT_BODY = "body";
@@ -32,6 +34,8 @@ public class AssetDatabase {
     public static final String PANTS_TOP = "top";
     public static final String HAIR_BACK = "back";
     public static final String HAIR_FRONT = "front";
+    public static final String SHOES = "feet";
+    public static final String HATS = "head";
 
     public ArrayList<String> hairAssets;
     public ArrayList<String> shirtAssets;
@@ -40,11 +44,13 @@ public class AssetDatabase {
     public ArrayList<String> glassesAssets;
     public ArrayList<String> beardAssets;
     public ArrayList<Accessory> accessoryAssets;
+    public ArrayList<String> setAssets;
+    public ArrayList<String> hatAssets;
 
     private AssetManager assetManager;
     private Resources resources;
     
-    public enum ConfigPart {hair, shirt, pants, shoes, glasses, beard, accessories, skinColor, hairColor};
+    public enum ConfigPart {hair, shirt, pants, shoes, glasses, beard, accessories, skinColor, hairColor, hats, sets};
 
     /**
      * Construct a new asset database.
@@ -54,18 +60,18 @@ public class AssetDatabase {
     public AssetDatabase(AssetManager assetManager, Resources resources) {
         this.assetManager = assetManager;
         this.resources = resources;
-        try {
-            scanAssets();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            scanAssets();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     /**
      * Scans and builds lists of all available assets, by type.
      * @throws IOException if something goes wrong with the filesystem during the scan.
      */
-    private void scanAssets() throws IOException {
+    public void scanAssets() throws IOException {
         if (hairAssets == null) {
             hairAssets = new ArrayList<String>(loadElements(ASSET_HAIR));
             Collections.sort(hairAssets);
@@ -86,13 +92,21 @@ public class AssetDatabase {
             glassesAssets = new ArrayList<String>(loadElements(ASSET_GLASSES));
             Collections.sort(glassesAssets);
         }
-        if (beardAssets == null) {
-            beardAssets = new ArrayList<String>(loadElements(ASSET_BEARD));
-            Collections.sort(beardAssets);
+//        if (beardAssets == null) {
+//            beardAssets = new ArrayList<String>(loadElements(ASSET_BEARD));
+//            Collections.sort(beardAssets);
+//        }
+//        if (accessoryAssets == null) {
+//            accessoryAssets = new ArrayList<Accessory>(loadAccessories(ASSET_ACCESSORIES));
+//            Collections.sort(accessoryAssets);
+//        }
+        if (setAssets == null) {
+            setAssets = new ArrayList<String>(loadElements(ASSET_SETS));
+            Collections.sort(setAssets);
         }
-        if (accessoryAssets == null) {
-            accessoryAssets = new ArrayList<Accessory>(loadAccessories(ASSET_ACCESSORIES));
-            Collections.sort(accessoryAssets);
+        if (hatAssets == null) {
+            hatAssets = new ArrayList<String>(loadElements(ASSET_HATS));
+            Collections.sort(hatAssets);
         }
     }
 

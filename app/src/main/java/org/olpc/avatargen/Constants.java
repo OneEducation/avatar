@@ -104,7 +104,7 @@ public class Constants {
     public static final float RESIZE_HEAD_MAX_Y = 1.3f;
 
     public static final float RESIZE_BODY_MIN_X = 0.8f;
-    public static final float RESIZE_BODY_MAX_X = 1.20f;
+    public static final float RESIZE_BODY_MAX_X = 1.4f;
     public static final float RESIZE_BODY_MIN_Y = 0.8f;
     public static final float RESIZE_BODY_MAX_Y = 1.3f;
 
