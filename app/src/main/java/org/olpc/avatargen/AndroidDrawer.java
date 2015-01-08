@@ -56,6 +56,8 @@ public class AndroidDrawer {
     private Picture glasses = null;
     private Picture beard = null;
     private Picture hats = null;
+    private Picture rightHandAcc = null;
+    private Picture leftHandAcc = null;
 
     /**
      * The accessories.
@@ -250,11 +252,17 @@ public class AndroidDrawer {
         accessories.add(accessory, db.loadAccessory(accessory));
     }
 
+    private void setHandAcc(AssetDatabase db, String item) {
+        rightHandAcc = getPicture(db.getSVGForAsset(ASSET_ACCESSORIES, item, "righthand"));
+        leftHandAcc = getPicture(db.getSVGForAsset(ASSET_ACCESSORIES, item, "lefthand"));
+    }
+
     private void setSets(AssetDatabase db, String set) {
         setShirt(db, set);
         setPants(db, set);
         setShoes(db, set);
         setHats(db, set);
+        setHandAcc(db, set);
     }
     
     public void setConfig(AssetDatabase db, ConfigPart part, String item) {
@@ -309,83 +317,83 @@ public class AndroidDrawer {
      * @param config the new configuration.
      * @param db the asset database, for loading clothing and accessory vector graphics.
      */
-    public void setAndroidConfig(AndroidConfig config, AssetDatabase db) {
-        hairColor = config.getHairColor();
-        skinColor = config.getSkinColor();
-        droidHead.picture = db.getSVGForResource(R.raw.avatar_head, ANDROID_COLOR, skinColor).getPicture();
-        droidBody.picture = db.getSVGForResource(R.raw.avatar_body, ANDROID_COLOR, skinColor).getPicture();
-        droidLegs.picture = db.getSVGForResource(R.raw.avatar_legs, ANDROID_COLOR, skinColor).getPicture();
-        //antenna = db.getSVGForResource(R.raw.android_antenna, ANDROID_COLOR, skinColor).getPicture();
-        //feet = db.getSVGForResource(R.raw.android_feet, ANDROID_COLOR, skinColor).getPicture();
-        hair = config.getHair();
-        if (hair != null) {
-            hairBack = getPicture(db.getSVGForAsset(ASSET_HAIR, hair, HAIR_BACK, HAIR_COLOR_DEFAULT, hairColor));
-            hairFront = getPicture(db.getSVGForAsset(ASSET_HAIR, hair, HAIR_FRONT, HAIR_COLOR_DEFAULT, hairColor));
-        } else {
-            hairBack = null;
-            hairFront = null;
-        }
-        String shirt = config.getShirt();
-        if (shirt != null) {
-            shirtBody = getPicture(db.getSVGForAsset(ASSET_SHIRT, shirt, SHIRT_BODY));
-            shirtArm = getPicture(db.getSVGForAsset(ASSET_SHIRT, shirt, SHIRT_ARM));
-            shirtTop = getPicture(db.getSVGForAsset(ASSET_SHIRT, shirt, SHIRT_TOP));
-        } else {
-            shirtBody = null;
-            shirtArm = null;
-            shirtTop = null;
-        }
-        String pants = config.getPants();
-        if (pants != null) {
-            pantsLeg = getPicture(db.getSVGForAsset(ASSET_PANTS, pants, PANTS_LEG));
-            pantsTop = getPicture(db.getSVGForAsset(ASSET_PANTS, pants, PANTS_TOP));
-            pantsSkirt = getPicture(db.getSVGForAsset(ASSET_PANTS, pants, "skirt"));
-        } else {
-            pantsLeg = null;
-            pantsTop = null;
-            pantsSkirt = null;
-        }
-        String shoeConf = config.getShoes();
-        if (shoeConf != null) {
-            shoes = getPicture(db.getSVGForAsset(ASSET_SHOES, shoeConf, null));
-        } else {
-            shoes = null;
-        }
-        String glassesConf = config.getGlasses();
-        if (glassesConf != null) {
-            glasses = getPicture(db.getSVGForAsset(ASSET_GLASSES, glassesConf, null));
-        } else {
-            glasses = null;
-        }
-        String beardConf = config.getBeard();
-        if (beardConf != null) {
-            beard = getPicture(db.getSVGForAsset(ASSET_BEARD, beardConf, null, HAIR_COLOR_DEFAULT, hairColor));
-        } else {
-            beard = null;
-        }
-        accessories.clear();
-        HashSet<String> accessoryNames = new HashSet<String>(config.getAllAccessories());
-        final List<Accessory> accessoryAssets = db.getAccessoryAssets();
-        for (Accessory accessory : accessoryAssets) {
-            if (accessoryNames.contains(accessory.getName())) {
-                accessories.add(accessory, db.loadAccessory(accessory));
-            }
-        }
-        //droidView.setAllScales(config.getBodyScaleX(), config.getBodyScaleY(), config.getHeadScaleX(), config.getHeadScaleY(), config.getArmScaleX(), config.getArmScaleY(), config.getLegScaleX(), config.getLegScaleY());
-        droidBody.scaleX = config.getBodyScaleX();
-        droidBody.scaleY = config.getBodyScaleY();
-        droidHead.scaleX = config.getHeadScaleX();
-        droidHead.scaleY = config.getHeadScaleY();
-        droidArm.scaleX = config.getArmScaleX();
-        droidArm.scaleY = config.getArmScaleY();
-        droidLegs.scaleX = config.getLegScaleX();
-        droidLegs.scaleY = config.getLegScaleY();
-        computeArmOffset();
-        computeLegsOffset();
-        // Finally, rescale
-        rescale();
-        addHoverAnimation();
-    }
+//    public void setAndroidConfig(AndroidConfig config, AssetDatabase db) {
+//        hairColor = config.getHairColor();
+//        skinColor = config.getSkinColor();
+//        droidHead.picture = db.getSVGForResource(R.raw.avatar_head, ANDROID_COLOR, skinColor).getPicture();
+//        droidBody.picture = db.getSVGForResource(R.raw.avatar_body, ANDROID_COLOR, skinColor).getPicture();
+//        droidLegs.picture = db.getSVGForResource(R.raw.avatar_legs, ANDROID_COLOR, skinColor).getPicture();
+//        //antenna = db.getSVGForResource(R.raw.android_antenna, ANDROID_COLOR, skinColor).getPicture();
+//        //feet = db.getSVGForResource(R.raw.android_feet, ANDROID_COLOR, skinColor).getPicture();
+//        hair = config.getHair();
+//        if (hair != null) {
+//            hairBack = getPicture(db.getSVGForAsset(ASSET_HAIR, hair, HAIR_BACK, HAIR_COLOR_DEFAULT, hairColor));
+//            hairFront = getPicture(db.getSVGForAsset(ASSET_HAIR, hair, HAIR_FRONT, HAIR_COLOR_DEFAULT, hairColor));
+//        } else {
+//            hairBack = null;
+//            hairFront = null;
+//        }
+//        String shirt = config.getShirt();
+//        if (shirt != null) {
+//            shirtBody = getPicture(db.getSVGForAsset(ASSET_SHIRT, shirt, SHIRT_BODY));
+//            shirtArm = getPicture(db.getSVGForAsset(ASSET_SHIRT, shirt, SHIRT_ARM));
+//            shirtTop = getPicture(db.getSVGForAsset(ASSET_SHIRT, shirt, SHIRT_TOP));
+//        } else {
+//            shirtBody = null;
+//            shirtArm = null;
+//            shirtTop = null;
+//        }
+//        String pants = config.getPants();
+//        if (pants != null) {
+//            pantsLeg = getPicture(db.getSVGForAsset(ASSET_PANTS, pants, PANTS_LEG));
+//            pantsTop = getPicture(db.getSVGForAsset(ASSET_PANTS, pants, PANTS_TOP));
+//            pantsSkirt = getPicture(db.getSVGForAsset(ASSET_PANTS, pants, "skirt"));
+//        } else {
+//            pantsLeg = null;
+//            pantsTop = null;
+//            pantsSkirt = null;
+//        }
+//        String shoeConf = config.getShoes();
+//        if (shoeConf != null) {
+//            shoes = getPicture(db.getSVGForAsset(ASSET_SHOES, shoeConf, null));
+//        } else {
+//            shoes = null;
+//        }
+//        String glassesConf = config.getGlasses();
+//        if (glassesConf != null) {
+//            glasses = getPicture(db.getSVGForAsset(ASSET_GLASSES, glassesConf, null));
+//        } else {
+//            glasses = null;
+//        }
+//        String beardConf = config.getBeard();
+//        if (beardConf != null) {
+//            beard = getPicture(db.getSVGForAsset(ASSET_BEARD, beardConf, null, HAIR_COLOR_DEFAULT, hairColor));
+//        } else {
+//            beard = null;
+//        }
+//        accessories.clear();
+//        HashSet<String> accessoryNames = new HashSet<String>(config.getAllAccessories());
+//        final List<Accessory> accessoryAssets = db.getAccessoryAssets();
+//        for (Accessory accessory : accessoryAssets) {
+//            if (accessoryNames.contains(accessory.getName())) {
+//                accessories.add(accessory, db.loadAccessory(accessory));
+//            }
+//        }
+//        //droidView.setAllScales(config.getBodyScaleX(), config.getBodyScaleY(), config.getHeadScaleX(), config.getHeadScaleY(), config.getArmScaleX(), config.getArmScaleY(), config.getLegScaleX(), config.getLegScaleY());
+//        droidBody.scaleX = config.getBodyScaleX();
+//        droidBody.scaleY = config.getBodyScaleY();
+//        droidHead.scaleX = config.getHeadScaleX();
+//        droidHead.scaleY = config.getHeadScaleY();
+//        droidArm.scaleX = config.getArmScaleX();
+//        droidArm.scaleY = config.getArmScaleY();
+//        droidLegs.scaleX = config.getLegScaleX();
+//        droidLegs.scaleY = config.getLegScaleY();
+//        computeArmOffset();
+//        computeLegsOffset();
+//        // Finally, rescale
+//        rescale();
+//        addHoverAnimation();
+//    }
 
     public void computeArmOffset() {
         // Account for body width
@@ -720,7 +728,8 @@ public class AndroidDrawer {
                 }
                 workPaint.setColor(skinColor);
                 canvas.drawPath(armPath, workPaint);
-                Picture handAccessory = accessories.getPictureForType(i == 0 ? Accessory.TYPE_ON_LEFT_HAND : Accessory.TYPE_ON_RIGHT_HAND);
+                //Picture handAccessory = accessories.getPictureForType(i == 0 ? Accessory.TYPE_ON_LEFT_HAND : Accessory.TYPE_ON_RIGHT_HAND);
+                Picture handAccessory = i == 0 ? leftHandAcc : rightHandAcc; //temporary
                 Picture gloveAccessory = accessories.getPictureForType(Accessory.TYPE_ON_BOTH_HANDS);
                 // Draw shirt
                 if (arm != null || handAccessory != null || gloveAccessory != null) {
@@ -784,6 +793,10 @@ public class AndroidDrawer {
                             gloveAccessory.draw(canvas);
                         }
                         if (handAccessory != null) {
+                            if (i == 1) {
+                                // revert back to order //Flip to right hand
+                                canvas.scale(-1f, 1f, CENTER_X, TOP_Y);
+                            }
                             handAccessory.draw(canvas);
                         }
                         canvas.restore();
@@ -807,34 +820,34 @@ public class AndroidDrawer {
             canvas.scale(droidHead.scaleX, droidHead.scaleY, POINT_BOTTOM_OF_HEAD.x, POINT_BOTTOM_OF_HEAD.y);
             droidHead.picture.draw(canvas);
 
-            if(antenna != null) {
-                //canvas.drawText("Head bound : "+ POINT_TOP_OF_LEFT_ANTENNA.x + "/" +POINT_TOP_OF_LEFT_ANTENNA.y, 0, 550, paint);
-                Picture earring = accessories.getPictureForType(Accessory.TYPE_EARRING);
-                // Draw antennae
-                for (int i = 0; i < 2; i++) {
-                    canvas.save();
-                    if (i == 1) {
-                        canvas.scale(-1f, 1f, CENTER_X, TOP_Y);
-                    }
-                    if (droidHead.scaleX > droidHead.scaleY) {
-                        canvas.scale(1f, droidHead.scaleX / droidHead.scaleY, POINT_BASE_OF_LEFT_ANTENNA.x, POINT_BASE_OF_LEFT_ANTENNA.y);
-                    } else {
-                        canvas.scale(droidHead.scaleY / droidHead.scaleX, 1f, POINT_BASE_OF_LEFT_ANTENNA.x, POINT_BASE_OF_LEFT_ANTENNA.y);
-                    }
-                    AndroidAnimation animation = getAnimation(AndroidAnimation.Type.ANTENNA_TWITCH);
-                    if (animation != null) {
-                        canvas.rotate(animation.getValue(), POINT_BASE_OF_LEFT_ANTENNA.x, POINT_BASE_OF_LEFT_ANTENNA.y);
-                    } else {
-                        float wiggle = getAmbientAntennaAngle(i);
-                        canvas.rotate(wiggle, POINT_BASE_OF_LEFT_ANTENNA.x, POINT_BASE_OF_LEFT_ANTENNA.y);
-                    }
-                    antenna.draw(canvas);
-                    if (earring != null) {
-                        earring.draw(canvas);
-                    }
-                    canvas.restore();
-                }
-            }
+//            if(antenna != null) {
+//                //canvas.drawText("Head bound : "+ POINT_TOP_OF_LEFT_ANTENNA.x + "/" +POINT_TOP_OF_LEFT_ANTENNA.y, 0, 550, paint);
+//                Picture earring = accessories.getPictureForType(Accessory.TYPE_EARRING);
+//                // Draw antennae
+//                for (int i = 0; i < 2; i++) {
+//                    canvas.save();
+//                    if (i == 1) {
+//                        canvas.scale(-1f, 1f, CENTER_X, TOP_Y);
+//                    }
+//                    if (droidHead.scaleX > droidHead.scaleY) {
+//                        canvas.scale(1f, droidHead.scaleX / droidHead.scaleY, POINT_BASE_OF_LEFT_ANTENNA.x, POINT_BASE_OF_LEFT_ANTENNA.y);
+//                    } else {
+//                        canvas.scale(droidHead.scaleY / droidHead.scaleX, 1f, POINT_BASE_OF_LEFT_ANTENNA.x, POINT_BASE_OF_LEFT_ANTENNA.y);
+//                    }
+//                    AndroidAnimation animation = getAnimation(AndroidAnimation.Type.ANTENNA_TWITCH);
+//                    if (animation != null) {
+//                        canvas.rotate(animation.getValue(), POINT_BASE_OF_LEFT_ANTENNA.x, POINT_BASE_OF_LEFT_ANTENNA.y);
+//                    } else {
+//                        float wiggle = getAmbientAntennaAngle(i);
+//                        canvas.rotate(wiggle, POINT_BASE_OF_LEFT_ANTENNA.x, POINT_BASE_OF_LEFT_ANTENNA.y);
+//                    }
+//                    antenna.draw(canvas);
+//                    if (earring != null) {
+//                        earring.draw(canvas);
+//                    }
+//                    canvas.restore();
+//                }
+//            }
             // Draw face accessory
             if (faceAccessory != null) {
                 faceAccessory.draw(canvas);

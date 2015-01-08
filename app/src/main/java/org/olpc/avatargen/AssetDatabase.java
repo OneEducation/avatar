@@ -43,7 +43,7 @@ public class AssetDatabase {
     public ArrayList<String> shoeAssets;
     public ArrayList<String> glassesAssets;
     public ArrayList<String> beardAssets;
-    public ArrayList<Accessory> accessoryAssets;
+    public ArrayList<String> accessoryAssets;
     public ArrayList<String> setAssets;
     public ArrayList<String> hatAssets;
 
@@ -96,10 +96,10 @@ public class AssetDatabase {
 //            beardAssets = new ArrayList<String>(loadElements(ASSET_BEARD));
 //            Collections.sort(beardAssets);
 //        }
-//        if (accessoryAssets == null) {
-//            accessoryAssets = new ArrayList<Accessory>(loadAccessories(ASSET_ACCESSORIES));
-//            Collections.sort(accessoryAssets);
-//        }
+        if (accessoryAssets == null) {
+            accessoryAssets = new ArrayList<String>(loadElements(ASSET_ACCESSORIES));
+            Collections.sort(accessoryAssets);
+        }
         if (setAssets == null) {
             setAssets = new ArrayList<String>(loadElements(ASSET_SETS));
             Collections.sort(setAssets);
@@ -238,9 +238,9 @@ public class AssetDatabase {
     /**
      * Returns a list of all accessory assets.
      */
-    public List<Accessory> getAccessoryAssets() {
-        return accessoryAssets;
-    }
+    //public List<Accessory> getAccessoryAssets() {
+    //    return accessoryAssets;
+    //}
 
     /**
      * Loads the SVG for an accessory.
@@ -294,9 +294,9 @@ public class AssetDatabase {
         config.setArmScaleY(getRandomScale(RESIZE_ARMS_MIN_Y, RESIZE_ARMS_MAX_Y));
         config.setSkinColor(SKIN_COLORS[RANDOM.nextInt(SKIN_COLORS.length)]);
         config.setHairColor(HAIR_COLORS[RANDOM.nextInt(HAIR_COLORS.length)]);
-        while (RANDOM.nextInt(100) < 25) {
-            config.addAccessory(accessoryAssets.get(RANDOM.nextInt(accessoryAssets.size())));
-        }
+//        while (RANDOM.nextInt(100) < 25) {
+//            config.addAccessory(accessoryAssets.get(RANDOM.nextInt(accessoryAssets.size())));
+//        }
         return config;
     }
 
