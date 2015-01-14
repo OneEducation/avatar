@@ -32,7 +32,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.util.DisplayMetrics;
 
@@ -46,7 +45,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ScrollView;
-import android.widget.Toast;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -54,6 +52,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.olpc.avatargen.AssetDatabase.ConfigPart;
 
@@ -69,7 +68,6 @@ public class MainActivity extends Activity {
     private FloatingActionButton2   fabCamera;              // camera button - bottom / right area
     private ImageButton             backButton;             // back button - top / left area
     private ContentLoadingProgressBar progress;
-//    private JSONObject              studentInfo;
     private String                  studentToken = "unknown";
 
     private Bitmap                  bitmapHead;             //
@@ -182,7 +180,13 @@ public class MainActivity extends Activity {
         new AsyncFileThread("http://id.one-education.org/student-avatar/small", new File(URL_SS_HEAD))
                 .setFinishHandler(uploadCallback).start();
     }
-	
+
+    @Override
+    protected  void onDestroy() {
+        saveJson();
+        super.onDestroy();
+    }
+
 	@Override
     public void onCreate(Bundle savedInstanceState) {
 //        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -274,29 +278,6 @@ public class MainActivity extends Activity {
 
         db = new AssetDatabase(getAssets(), getResources());
         avatarConfig = new AvatarConfig(db);
-
-
-        try {
-            InputStream inputStream = openFileInput(URL_CONFIG);
-
-            if ( inputStream != null ) {
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                String receiveString = "";
-                StringBuilder stringBuilder = new StringBuilder();
-
-                while ( (receiveString = bufferedReader.readLine()) != null ) {
-                    stringBuilder.append(receiveString);
-                }
-
-                inputStream.close();
-                avatarConfig.loadConfig(new JSONObject(stringBuilder.toString()));
-            }
-        }
-        catch (Exception e) {
-            Util.debug("File not found: " + e.toString());
-        }
-
         avatarView.initialize(db, avatarConfig);
 
         for(int i=0; i< icons.length; i++) {
@@ -357,40 +338,106 @@ public class MainActivity extends Activity {
 
 
 
-        final Handler handler = new Handler();
         XoDataProvider xoDataProvider = new XoDataProvider(this);
         xoDataProvider.requestStudentData(new XoDataProvider.StudentDataCallback() {
             @Override
             public void onStudentDataAvailable(final String studentData) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Util.debug(studentData);
-                        try {
-                            JSONObject studentInfo = new JSONObject(studentData);
-                            studentToken = studentInfo.getString("token");
-                        } catch (Exception e) {
-                            Util.debug(e.getMessage());
-                        }
-                        //data2.setText(studentData);
-                    }
-                });
+                Util.debug(studentData);
+                try {
+                    JSONObject studentInfo = new JSONObject(studentData);
+                    studentToken = studentInfo.getString("token");
+                } catch (JSONException e) {
+                    Util.debug(e.getMessage());
+                }
+
+                checkLastAvatar();
             }
 
             @Override
             public void onError(String description) {
                 Util.debug("XoDataProvider error: " + description);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //showNotLoginAlertDialog();
+                        checkLastAvatar();
+                    }
+                });
             }
         });
-    	
+    }
 
+    private void checkLastAvatar() {
+        try {
+            final InputStream inputStream = openFileInput(URL_CONFIG);
+
+            if ( inputStream != null ) {
+
+                new MaterialDialog.Builder(MainActivity.this)
+                        .title("Avatar")
+                        .content("You have an avatar last time. Do you want continue or new?")
+                        .positiveText("New")
+                        .negativeText("Continue")
+                        .callback(new MaterialDialog.ButtonCallback() {
+                            @Override
+                            public void onPositive(MaterialDialog dialog) {
+                            }
+
+                            @Override
+                            public void onNegative(MaterialDialog dialog) {
+                                try {
+                                    InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                                    BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                                    String receiveString = "";
+                                    StringBuilder stringBuilder = new StringBuilder();
+
+                                    while ((receiveString = bufferedReader.readLine()) != null) {
+                                        stringBuilder.append(receiveString);
+                                    }
+
+                                    inputStream.close();
+                                    avatarConfig.loadConfig(new JSONObject(stringBuilder.toString()));
+                                } catch (Exception e) {
+                                    Util.debug(e.getMessage());
+                                }
+                            }
+                        })
+                        .show();
+            }
+        }
+        catch (Exception e) {
+            Util.debug("File not found: " + e.toString());
+        }
+    }
+
+    private void showNotLoginAlertDialog() {
+        new MaterialDialog.Builder(MainActivity.this)
+                .title("XO-ID")
+                .content("You need to log in XO-ID first. Click Login button to launch XO-ID.")
+                .positiveText("Login")
+                .negativeText("Quit")
+                .cancelable(false)
+                .callback(new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        dialog.dismiss();
+                        //TODO : launch xo-id
+                        checkLastAvatar();
+                    }
+
+                    @Override
+                    public void onNegative(MaterialDialog dialog) {
+                        finish();
+                    }
+                })
+                .show();
     }
 
     private void showQuitDialog() {
         new MaterialDialog.Builder(MainActivity.this)
                 .title("Quit")
-                .content("If you go back now, you'll lose your changes.")
-                .positiveText("DISCARD")
+                .content("Do you really want to quit?")
+                .positiveText("QUIT")
                 .negativeText("KEEP EDITING")
                 .callback(new MaterialDialog.ButtonCallback() {
                     @Override
@@ -420,7 +467,7 @@ public class MainActivity extends Activity {
 				@Override
 				public void onClick(View v) {
 					Integer color = (Integer)v.getTag();
-                    avatarConfig.setConfig(ConfigPart.skinColor, color.toString());
+                    avatarConfig.setPart(ConfigPart.skinColor, color.toString());
 				}
 			});
             runOnUiThread(new Runnable() {
@@ -449,7 +496,7 @@ public class MainActivity extends Activity {
 				@Override
 				public void onClick(View v) {
 					Integer color = (Integer)v.getTag();
-                    avatarConfig.setConfig(ConfigPart.hairColor, color.toString());
+                    avatarConfig.setPart(ConfigPart.hairColor, color.toString());
 				}
 			});
             runOnUiThread(new Runnable() {
@@ -493,7 +540,7 @@ public class MainActivity extends Activity {
 
                         @Override
                         public void onClick(View v) {
-                            avatarConfig.setConfig(part, (String) v.getTag());
+                            avatarConfig.setPart(part, (String) v.getTag());
                         }
                     });
 
@@ -531,7 +578,7 @@ public class MainActivity extends Activity {
 
                         @Override
                         public void onClick(View v) {
-                            avatarConfig.setConfig(part, (String)v.getTag());
+                            avatarConfig.setPart(part, (String) v.getTag());
                         }
                     });
 
@@ -578,6 +625,11 @@ public class MainActivity extends Activity {
         bitmapBody = avatarView.takeScreenShot(false, 600, 600);
         //avatarView.printMessage(avatarConfig.getConfig().toString());
 
+        screenShotView.setImageBitmap(bitmapBody);
+        changeMode(Status.screenShot);
+	}
+
+    private void saveJson() {
         try {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(openFileOutput(URL_CONFIG, Context.MODE_PRIVATE));
             outputStreamWriter.write(avatarConfig.getConfig().toString());
@@ -586,10 +638,7 @@ public class MainActivity extends Activity {
         catch (IOException e) {
             Util.debug("File write failed: " + e.toString());
         }
-
-        screenShotView.setImageBitmap(bitmapBody);
-        changeMode(Status.screenShot);
-	}
+    }
 
     private void saveScreen() {
         File file = new File(URL_SS_BODY);

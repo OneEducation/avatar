@@ -36,7 +36,7 @@ public class AvatarConfig {
         droidLegs = new Part(legs, Constants.RESIZE_LEGS_MIN_X, Constants.RESIZE_LEGS_MIN_Y, Constants.RESIZE_LEGS_MAX_X, Constants.RESIZE_LEGS_MAX_Y);
     }
 
-    public void setConfig(AssetDatabase.ConfigPart part, String item) {
+    public void setPart(AssetDatabase.ConfigPart part, String item) {
         try {
             if(part == AssetDatabase.ConfigPart.sets) {
                 jsonObject.put(AssetDatabase.ConfigPart.shirt.name(), item);
@@ -64,6 +64,7 @@ public class AvatarConfig {
         } catch(Exception e) {
             Util.debug(e.getMessage());
         }
+        ps.onNext(jsonObject);
     }
 
     public JSONObject getConfig() {
