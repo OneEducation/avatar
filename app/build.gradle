@@ -33,6 +33,7 @@ android {
 }
 
 dependencies {
+    compile project(':android_client_library')
     compile files('libs/svg-android.jar')
     compile "com.android.support:appcompat-v7:21.0.+"
     compile "com.shamanland:fab:0.0.6"
@@ -42,6 +43,6 @@ dependencies {
     compile 'org.apache.httpcomponents:httpclient:4.3.6'
     compile 'org.apache.httpcomponents:httpcore:4.3.3'
     compile "org.apache.httpcomponents:httpmime:4.3.6"
-    compile 'com.squareup.okhttp:okhttp:2.1.0'
     compile 'com.afollestad:material-dialogs:0.5.7'
+    compile 'io.reactivex:rxandroid:0.24.0'
 }

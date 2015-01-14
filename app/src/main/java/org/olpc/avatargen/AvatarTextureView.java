@@ -1,7 +1,5 @@
 package org.olpc.avatargen;
 
-import org.olpc.avatargen.AssetDatabase.ConfigPart;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -10,7 +8,6 @@ import android.graphics.Paint;
 import android.graphics.SurfaceTexture;
 import android.os.Handler;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.TextureView;
 import android.view.View;
@@ -25,22 +22,21 @@ public class AvatarTextureView extends TextureView implements TextureView.Surfac
      * Amount of time before the next scene starts to fades in (make it plus the transition time less than the drift time), in millis.
      */
     public static final long SCENE_TIME = 5000L;
-	private Context context;		//context to use resources
 	private RenderEngine engine;
     private int width;
     private int height;
+    public String message="";
 
     public AvatarTextureView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		
-		this.context = context;
 		setSurfaceTextureListener(this);
 		setOpaque(false);
 	}
 	
-	public void initialize(AssetDatabase db) {
+	public void initialize(AssetDatabase db, AvatarConfig avatarConfig) {
 		engine = new RenderEngine();
-		engine.init(this, db);
+		engine.init(this, db, avatarConfig);
         engine.setScreen(width, height);
         engine.setVisibility(true);
 	}
@@ -49,10 +45,6 @@ public class AvatarTextureView extends TextureView implements TextureView.Surfac
 	public boolean onTouchEvent(MotionEvent event) {
 		engine.handleTouch(event);
 		return true;
-	}
-	
-	public void setConfig(ConfigPart part, String item) {
-		engine.setConfig(part, item);
 	}
 	
     @Override
@@ -66,6 +58,10 @@ public class AvatarTextureView extends TextureView implements TextureView.Surfac
     	return head ? engine.takeHeadScreenshot(w,h) : engine.takeScreenShot(w,h);
     }
 
+    public void printMessage(String msg) {
+        this.message = msg;
+    }
+
 
 	/**
      * The engine responsible for rendering.
@@ -74,10 +70,8 @@ public class AvatarTextureView extends TextureView implements TextureView.Surfac
 
         private final Handler mHandler = new Handler();
         private boolean mVisible;
-        private AndroidDrawer android; //, nextAndroid;
-        private AssetDatabase assetDatabase;
+        private AvatarDrawer drawer; //, nextAndroid;
         private int width, height;
-        private int lastColorIndex = -1;
         private long sceneTime = 0L;
         
         private TextureView holder;
@@ -96,34 +90,21 @@ public class AvatarTextureView extends TextureView implements TextureView.Surfac
         
         Paint paint = new Paint();
 
-        private final Runnable drawer = new Runnable() {
+        private final Runnable drawRunnable = new Runnable() {
             public void run() {
                 drawFrame();
             }
         };
 
-        /**
-         * Gets a randomly-generated android.
-         */
-        private AndroidConfig getNextConfig() {
-            // Return a random config
-            return assetDatabase.getRandomConfig();
-        }
-
-        public void init(TextureView surfaceHolder, AssetDatabase db) {
+        public void init(TextureView surfaceHolder, AssetDatabase db, AvatarConfig avatarConfig) {
         	holder = surfaceHolder;
-            assetDatabase = db;
-            android = new AndroidDrawer(assetDatabase);
-            //android.setAndroidConfig(getNextConfig(), assetDatabase);
+            drawer = new AvatarDrawer();
+            drawer.loadConfig(db, avatarConfig);
             sceneTime = System.currentTimeMillis();
 
         	paint.setAntiAlias(true);
         	paint.setTextSize(20);
         	paint.setColor(Color.RED);
-        }
-        
-        public void setConfig(ConfigPart part, String item) {
-        	android.setConfig(assetDatabase, part, item);
         }
         
         public void handleTouch(MotionEvent e) {
@@ -134,16 +115,16 @@ public class AvatarTextureView extends TextureView implements TextureView.Surfac
         	case MotionEvent.ACTION_DOWN:        		
         		matrixTouch[0] = x;
         		matrixTouch[1] = y;
-        		if(android.reverseTransform!=null)
-            		android.reverseTransform.mapPoints(matrixTouch);
+        		if(drawer.reverseTransform!=null)
+            		drawer.reverseTransform.mapPoints(matrixTouch);
         		
-        		if(android.droidHead.contains(matrixTouch[0], matrixTouch[1])) {
+        		if(drawer.droidHead.contains(matrixTouch[0], matrixTouch[1])) {
         			touchDownRegion = HEAD;
-        		} else if(android.droidBody.contains(matrixTouch[0], matrixTouch[1])) {
+        		} else if(drawer.droidBody.contains(matrixTouch[0], matrixTouch[1])) {
         			touchDownRegion = BODY;
-        		} else if(android.droidLegs.contains(matrixTouch[0], matrixTouch[1])) {
+        		} else if(drawer.droidLegs.contains(matrixTouch[0], matrixTouch[1])) {
         			touchDownRegion = LEG;
-        		} else if(android.droidArm.contains(matrixTouch[0], matrixTouch[1])) {
+        		} else if(drawer.droidArm.contains(matrixTouch[0], matrixTouch[1])) {
         			touchDownRegion = ARM;
         		}
         		
@@ -162,28 +143,28 @@ public class AvatarTextureView extends TextureView implements TextureView.Surfac
         			
         			switch(touchDownRegion) {
         			case HEAD:
-        				android.droidHead.scale(diffX, diffY);
+        				drawer.droidHead.scale(diffX, diffY);
             			break;
         			case BODY:
-        				android.droidBody.scale(diffX, diffY);
+        				drawer.droidBody.scale(diffX, diffY);
             			break;
         			case LEG:
-        				android.droidLegs.scale(diffX, diffY);
+        				drawer.droidLegs.scale(diffX, diffY);
             			break;
         			case ARM:
-        				android.droidArm.scale(diffX, diffY);
+        				drawer.droidArm.scale(diffX, diffY);
             			break;
         			}
         			
-        			//Log.d("Mouse", android.droidArm.scaleY+"");
-        			android.computeArmOffset();
-        	        android.computeLegsOffset();
-            		android.rescale();
+        			//Log.d("Mouse", drawer.droidArm.scaleY+"");
+        			drawer.computeArmOffset();
+        	        drawer.computeLegsOffset();
+            		drawer.rescale();
         		}        		
         		break;
         	case MotionEvent.ACTION_UP:
         		if(touchDownRegion == NONE) {
-        			//android.setAndroidConfig(getNextConfig(), assetDatabase);
+        			//drawer.setAndroidConfig(getNextConfig(), assetDatabase);
         		}
         		touchDownRegion = NONE;
         		break;
@@ -193,7 +174,7 @@ public class AvatarTextureView extends TextureView implements TextureView.Surfac
         }
 
         public void destroy() {
-            mHandler.removeCallbacks(drawer);
+            mHandler.removeCallbacks(drawRunnable);
         }
 
         public void setVisibility(boolean visible) {
@@ -201,18 +182,18 @@ public class AvatarTextureView extends TextureView implements TextureView.Surfac
             if (visible) {
                 postDraw();
             } else {
-                mHandler.removeCallbacks(drawer);
+                mHandler.removeCallbacks(drawRunnable);
             }
         }
         
         public void setScreen(int width, int height) {
         	this.width = width;
         	this.height = height;
-        	android.setDimensions(width, height);
+        	drawer.setDimensions(width, height);
         }
 
         public void doRandomAnimation() {
-            android.addRandomAnimation(true);
+            drawer.addRandomAnimation(true);
         }
 
         /*
@@ -227,22 +208,23 @@ public class AvatarTextureView extends TextureView implements TextureView.Surfac
             	doRandomAnimation();
         		sceneTime = time + sceneTime;
             }
-            android.stepAnimations();
+            drawer.stepAnimations();
             Canvas c = null;
             try {
                 c = holder.lockCanvas(null);
                 if (c != null) {
                     c.save();
 
-                    android.draw(c);
+                    drawer.draw(c);
                     
-//                    if(Util.debugMode) {
-//	                	c.drawText("Mouse Point : X="+matrixTouch[0]+", Y="+matrixTouch[1], 0, 450, paint);
-//	                	c.drawText("Head bound : "+ android.droidHead.bound.toShortString() + " / " + android.droidHead.contains(matrixTouch[0], matrixTouch[1]), 0, 500, paint);
-//	                	c.drawText("Body bound : "+ android.droidBody.bound.toShortString() + " / " + android.droidBody.contains(matrixTouch[0], matrixTouch[1]), 0, 550, paint);
-//	                	c.drawText("Leg bound : "+ android.droidLegs.bound.toShortString() + " / " + android.droidLegs.contains(matrixTouch[0], matrixTouch[1]), 0, 600, paint);
-//	                	c.drawText("Arm bound : "+ android.droidArm.bound.toShortString() + " / " + android.droidArm.contains(matrixTouch[0], matrixTouch[1]), 0, 650, paint);
-//                    }
+                    if(Util.debugMode) {
+                        c.drawText(message, 20, 400, paint);
+	                	c.drawText("Mouse Point : X="+matrixTouch[0]+", Y="+matrixTouch[1], 0, 450, paint);
+	                	c.drawText("Head bound : "+ drawer.droidHead.bound.toShortString() + " / " + drawer.droidHead.contains(matrixTouch[0], matrixTouch[1]), 0, 500, paint);
+	                	c.drawText("Body bound : "+ drawer.droidBody.bound.toShortString() + " / " + drawer.droidBody.contains(matrixTouch[0], matrixTouch[1]), 0, 550, paint);
+	                	c.drawText("Leg bound : "+ drawer.droidLegs.bound.toShortString() + " / " + drawer.droidLegs.contains(matrixTouch[0], matrixTouch[1]), 0, 600, paint);
+	                	c.drawText("Arm bound : "+ drawer.droidArm.bound.toShortString() + " / " + drawer.droidArm.contains(matrixTouch[0], matrixTouch[1]), 0, 650, paint);
+                    }
 
                     c.restore();
                 }
@@ -260,18 +242,18 @@ public class AvatarTextureView extends TextureView implements TextureView.Surfac
          * Posts a draw event to the handler.
          */
         public void postDraw() {
-            mHandler.removeCallbacks(drawer);
+            mHandler.removeCallbacks(drawRunnable);
             if (mVisible) {
-                mHandler.postDelayed(drawer, 1000 / FRAME_RATE);
+                mHandler.postDelayed(drawRunnable, 1000 / FRAME_RATE);
             }
         }
         
         public Bitmap takeScreenShot(int w, int h) {
-            mHandler.removeCallbacks(drawer);
-            android.setDimensions(w, h);
+            mHandler.removeCallbacks(drawRunnable);
+            drawer.setDimensions(w, h);
     		Bitmap  bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
     		Canvas canvas = new Canvas(bitmap);
-    		android.draw(canvas, true);
+    		drawer.draw(canvas, true);
     		setScreen(width, height);
     		postDraw();
     		return bitmap;
@@ -280,7 +262,7 @@ public class AvatarTextureView extends TextureView implements TextureView.Surfac
         public Bitmap takeHeadScreenshot(int w, int h) {
         	Bitmap  bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
     		Canvas canvas = new Canvas(bitmap);
-    		android.drawHead(canvas, w, h);
+    		drawer.drawHead(canvas, w, h);
     		return bitmap;
         }
 

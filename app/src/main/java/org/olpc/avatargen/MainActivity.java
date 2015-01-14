@@ -11,7 +11,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 
@@ -19,21 +21,18 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.larvalabs.svgandroid.SVG;
-import com.squareup.okhttp.Headers;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.MultipartBuilder;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
+import com.xoid.xodatainterface.XoDataProvider;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.util.DisplayMetrics;
 
@@ -47,6 +46,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ScrollView;
+import android.widget.Toast;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -54,6 +54,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONObject;
 import org.olpc.avatargen.AssetDatabase.ConfigPart;
 
 
@@ -68,11 +69,16 @@ public class MainActivity extends Activity {
     private FloatingActionButton2   fabCamera;              // camera button - bottom / right area
     private ImageButton             backButton;             // back button - top / left area
     private ContentLoadingProgressBar progress;
+//    private JSONObject              studentInfo;
+    private String                  studentToken = "unknown";
 
     private Bitmap                  bitmapHead;             //
     private Bitmap                  bitmapBody;             //
     final private String            URL_SS_BODY = Environment.getExternalStorageDirectory() + "/ss_body.png";
     final private String            URL_SS_HEAD = Environment.getExternalStorageDirectory() + "/ss_head.png";
+    final private String            URL_CONFIG  = "config.json";
+
+    private AvatarConfig            avatarConfig;
 
     private int[] icons = {                         // icon images for select parts menu
 			R.drawable.bodyicon,
@@ -112,6 +118,7 @@ public class MainActivity extends Activity {
         @Override
         public void onFinished(HttpResponse res) {
             responseCount++;
+            Util.debug("response code : "+res.getStatusLine().getStatusCode());
             if(res.getStatusLine().getStatusCode() == 200) {
                 successCount++;
             }
@@ -263,8 +270,34 @@ public class MainActivity extends Activity {
     	detailPartView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
     	detailItemsView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
+
+
         db = new AssetDatabase(getAssets(), getResources());
-        avatarView.initialize(db);
+        avatarConfig = new AvatarConfig(db);
+
+
+        try {
+            InputStream inputStream = openFileInput(URL_CONFIG);
+
+            if ( inputStream != null ) {
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                String receiveString = "";
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while ( (receiveString = bufferedReader.readLine()) != null ) {
+                    stringBuilder.append(receiveString);
+                }
+
+                inputStream.close();
+                avatarConfig.loadConfig(new JSONObject(stringBuilder.toString()));
+            }
+        }
+        catch (Exception e) {
+            Util.debug("File not found: " + e.toString());
+        }
+
+        avatarView.initialize(db, avatarConfig);
 
         for(int i=0; i< icons.length; i++) {
             ImageView iv = new ImageView(MainActivity.this);
@@ -321,6 +354,34 @@ public class MainActivity extends Activity {
 				detailPartView.animate().xBy(detailPartView.getWidth()).start();
 			}
 		});
+
+
+
+        final Handler handler = new Handler();
+        XoDataProvider xoDataProvider = new XoDataProvider(this);
+        xoDataProvider.requestStudentData(new XoDataProvider.StudentDataCallback() {
+            @Override
+            public void onStudentDataAvailable(final String studentData) {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Util.debug(studentData);
+                        try {
+                            JSONObject studentInfo = new JSONObject(studentData);
+                            studentToken = studentInfo.getString("token");
+                        } catch (Exception e) {
+                            Util.debug(e.getMessage());
+                        }
+                        //data2.setText(studentData);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String description) {
+                Util.debug("XoDataProvider error: " + description);
+            }
+        });
     	
 
     }
@@ -359,7 +420,7 @@ public class MainActivity extends Activity {
 				@Override
 				public void onClick(View v) {
 					Integer color = (Integer)v.getTag();
-					avatarView.setConfig(ConfigPart.skinColor, color.toString());
+                    avatarConfig.setConfig(ConfigPart.skinColor, color.toString());
 				}
 			});
             runOnUiThread(new Runnable() {
@@ -388,7 +449,7 @@ public class MainActivity extends Activity {
 				@Override
 				public void onClick(View v) {
 					Integer color = (Integer)v.getTag();
-					avatarView.setConfig(ConfigPart.hairColor, color.toString());
+                    avatarConfig.setConfig(ConfigPart.hairColor, color.toString());
 				}
 			});
             runOnUiThread(new Runnable() {
@@ -432,7 +493,7 @@ public class MainActivity extends Activity {
 
                         @Override
                         public void onClick(View v) {
-                            avatarView.setConfig(part, (String) v.getTag());
+                            avatarConfig.setConfig(part, (String) v.getTag());
                         }
                     });
 
@@ -470,7 +531,7 @@ public class MainActivity extends Activity {
 
                         @Override
                         public void onClick(View v) {
-                            avatarView.setConfig(part, (String)v.getTag());
+                            avatarConfig.setConfig(part, (String)v.getTag());
                         }
                     });
 
@@ -515,6 +576,17 @@ public class MainActivity extends Activity {
 	private void takeScreen() {
         bitmapHead = avatarView.takeScreenShot(true, 300, 300);   // head
         bitmapBody = avatarView.takeScreenShot(false, 600, 600);
+        //avatarView.printMessage(avatarConfig.getConfig().toString());
+
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(openFileOutput(URL_CONFIG, Context.MODE_PRIVATE));
+            outputStreamWriter.write(avatarConfig.getConfig().toString());
+            outputStreamWriter.close();
+        }
+        catch (IOException e) {
+            Util.debug("File write failed: " + e.toString());
+        }
+
         screenShotView.setImageBitmap(bitmapBody);
         changeMode(Status.screenShot);
 	}
@@ -605,46 +677,15 @@ public class MainActivity extends Activity {
             return this;
         }
 
-        private final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
-
-        private final OkHttpClient client = new OkHttpClient();
-
-        public void run1() {
-            try {
-
-                RequestBody requestBody = new MultipartBuilder()
-                        .type(MultipartBuilder.FORM)
-//                        .addPart(
-//                                Headers.of("Content-Disposition", "form-data; name=\"title\""),
-//                                RequestBody.create(null, "Square Logo"))
-//                        .addFormDataPart("file", null, RequestBody.create(MEDIA_TYPE_PNG, file))
-                        .addPart(
-                                Headers.of("Content-Disposition", "form-data; name=\"file\""),
-                                RequestBody.create(null, file))
-                        .build();
-
-                Request request = new Request.Builder()
-                        .header("X-Api-Key", "abc123")
-                        .url(address)
-                        .post(requestBody)
-                        .build();
-
-                Response response = client.newCall(request).execute();
-                if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-
-
-                Util.debug(response.body().string());
-            } catch (Exception e) {
-                Util.debug(e.getMessage());
-            }
-        }
-
         public void run(){
 
             try {
                 HttpClient httpClient = new DefaultHttpClient();
                 HttpPost postRequest = new HttpPost(address);
                 postRequest.setHeader("X-Api-Key", "abc123");
+                postRequest.setHeader("X-Device-Id", Build.SERIAL);
+                postRequest.setHeader("X-Student-Token", studentToken);
+                avatarView.printMessage(Build.SERIAL + " / " + studentToken);
                 HttpEntity reqEntity = MultipartEntityBuilder.create().addBinaryBody("file", file).build();
                 postRequest.setEntity(reqEntity);
 
@@ -663,6 +704,7 @@ public class MainActivity extends Activity {
                     }
                 });
             } catch (Exception e) {
+
                 Util.debug(e.getMessage());
             }
 

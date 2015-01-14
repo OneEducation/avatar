@@ -7,10 +7,8 @@ The following files were *not* copied into the new Gradle project; you
 should evaluate whether these are still needed in your project and if
 so manually move them:
 
-* .DS_Store
-* build.properties
-* build.xml
-* readme.txt
+* ic_launcher-web.png
+* proguard-project.txt
 
 Replaced Jars with Dependencies:
 --------------------------------
@@ -22,17 +20,18 @@ the .jar file in your project was of an older version than the
 dependency we picked, which could render the project not compileable.
 You can disable the jar replacement in the import wizard and try again:
 
-svg-android.jar => com.github.japgolly.android:svg-android:2.0.5
+android-support-v4.jar => com.android.support:support-v4:18.0.0
 
 Moved Files:
 ------------
 Android Gradle projects use a different directory structure than ADT
 Eclipse projects. Here's how the projects were restructured:
 
-* AndroidManifest.xml => app/src/main/AndroidManifest.xml
-* assets/ => app/src/main/assets/
-* res/ => app/src/main/res/
-* src/ => app/src/main/java/
+* AndroidManifest.xml => android_client_library/src/main/AndroidManifest.xml
+* assets/ => android_client_library/src/main/assets/
+* res/ => android_client_library/src/main/res/
+* src/ => android_client_library/src/main/java/
+* src/com/xosignin/service/aidl/IXoServiceInterface.aidl => android_client_library/src/main/aidl/com/xosignin/service/aidl/IXoServiceInterface.aidl
 
 Next Steps:
 -----------

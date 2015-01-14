@@ -6,12 +6,21 @@ import android.view.animation.LinearInterpolator;
 import com.larvalabs.svgandroid.SVG;
 import com.larvalabs.svgandroid.SVGParser;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.*;
+
+import rx.*;
+import rx.Observable;
+import rx.functions.Action1;
+import rx.subjects.PublishSubject;
+import rx.subjects.Subject;
 
 import static org.olpc.avatargen.Constants.*;
 import static org.olpc.avatargen.AssetDatabase.*;
 
-public class AndroidDrawer {
+public class AvatarDrawer {
 
     /**
      * Constant needed for drawing circles (or close approximation thereof) with splines.
@@ -134,24 +143,58 @@ public class AndroidDrawer {
         setDrift(zoom.driftAmount * (POINT_BOTTOM_OF_LEFT_EYE.y - POINT_TOP_OF_LEFT_EYE.y), zoom.driftAngle, zoom.driftTime);
     }
 
+    public void loadConfig(final AssetDatabase db, AvatarConfig config) {
+        feet = config.droidFeet.picture;
+        droidBody = config.droidBody;
+        droidHead = config.droidHead;
+        droidArm = config.droidArm;
+        droidLegs = config.droidLegs;
+
+        armPath = new Path();
+        createArmPath();
+
+        computeArmOffset();
+        computeLegsOffset();
+        rescale();
+
+
+        config.setSubscriber(new Action1<JSONObject>() {
+            @Override
+            public void call(JSONObject jsonObject) {
+                Iterator<String> it = jsonObject.keys();
+                while (it.hasNext()) {
+                    String key = it.next();
+                    String v;
+                    try {
+                        v = jsonObject.getString(key);
+                        setConfig(db, ConfigPart.valueOf(key), v);
+                    } catch (JSONException e) {
+                        Util.debug(e.getMessage());
+                    } catch (IllegalArgumentException e) {
+                        continue;
+                    }
+                }
+            }
+        });
+    }
     /**
      * Create a new android drawer.
-     * @param db the database from which SVG assets can be loaded.
      */
-    public AndroidDrawer(AssetDatabase db) {
-        Picture body = db.getSVGForResource(R.raw.avatar_body).getPicture();
-        Picture head = db.getSVGForResource(R.raw.avatar_head).getPicture();
-        //Picture antenna = db.getSVGForResource(R.raw.android_antenna).getPicture();
-        Picture arm = db.getSVGForResource(R.raw.avatar_arm).getPicture();
-        Picture legs = db.getSVGForResource(R.raw.avatar_legs).getPicture();
-        Picture feet = db.getSVGForResource(R.raw.avatar_feet).getPicture();
-        // Load icons
-        this.feet = feet;
-        this.antenna = antenna;
-        droidBody = new Part(body, Constants.RESIZE_BODY_MIN_X, Constants.RESIZE_BODY_MIN_Y, Constants.RESIZE_BODY_MAX_X, Constants.RESIZE_BODY_MAX_Y);
-        droidHead = new Part(head, Constants.RESIZE_HEAD_MIN_X, Constants.RESIZE_HEAD_MIN_Y, Constants.RESIZE_HEAD_MAX_X, Constants.RESIZE_HEAD_MAX_Y);
-        droidArm = new Part(arm, Constants.RESIZE_ARMS_MIN_X, Constants.RESIZE_ARMS_MIN_Y, Constants.RESIZE_ARMS_MAX_X, Constants.RESIZE_ARMS_MAX_Y);
-        droidLegs = new Part(legs, Constants.RESIZE_LEGS_MIN_X, Constants.RESIZE_LEGS_MIN_Y, Constants.RESIZE_LEGS_MAX_X, Constants.RESIZE_LEGS_MAX_Y);
+    public AvatarDrawer() {
+        //this.avatarConfig = avatarConfig;
+//        Picture body = db.getSVGForResource(R.raw.avatar_body).getPicture();
+//        Picture head = db.getSVGForResource(R.raw.avatar_head).getPicture();
+//        //Picture antenna = db.getSVGForResource(R.raw.android_antenna).getPicture();
+//        Picture arm = db.getSVGForResource(R.raw.avatar_arm).getPicture();
+//        Picture legs = db.getSVGForResource(R.raw.avatar_legs).getPicture();
+//        Picture feet = db.getSVGForResource(R.raw.avatar_feet).getPicture();
+
+        //this.feet = avatarConfig.droidfeet;
+//        droidBody = new Part(body, Constants.RESIZE_BODY_MIN_X, Constants.RESIZE_BODY_MIN_Y, Constants.RESIZE_BODY_MAX_X, Constants.RESIZE_BODY_MAX_Y);
+//        droidHead = new Part(head, Constants.RESIZE_HEAD_MIN_X, Constants.RESIZE_HEAD_MIN_Y, Constants.RESIZE_HEAD_MAX_X, Constants.RESIZE_HEAD_MAX_Y);
+//        droidArm = new Part(arm, Constants.RESIZE_ARMS_MIN_X, Constants.RESIZE_ARMS_MIN_Y, Constants.RESIZE_ARMS_MAX_X, Constants.RESIZE_ARMS_MAX_Y);
+//        droidLegs = new Part(legs, Constants.RESIZE_LEGS_MIN_X, Constants.RESIZE_LEGS_MIN_Y, Constants.RESIZE_LEGS_MAX_X, Constants.RESIZE_LEGS_MAX_Y);
+
         droidBounds = new RectF();
         droidCenter = new PointF();
         // Setup body clip
@@ -159,11 +202,12 @@ public class AndroidDrawer {
         reverseTransform = new Matrix();
         workPaint = new Paint();
         workPaint.setAntiAlias(true);
-        //shadowPaint.setMaskFilter(new BlurMaskFilter(2f, BlurMaskFilter.Blur.NORMAL));
-        armPath = new Path();
-        createArmPath();
+
+//        armPath = new Path();
+//        createArmPath();
+
         animations = new HashMap<String, AndroidAnimation>();
-        antennaAnimation = new AntennaAnimation();
+        //antennaAnimation = new AntennaAnimation();
     }
 
     /**
@@ -248,36 +292,20 @@ public class AndroidDrawer {
         hats = getPicture(db.getSVGForAsset(ASSET_HATS, item, HATS));
     }
 
-    private void setAccessories(AssetDatabase db, Accessory accessory) {
-        accessories.add(accessory, db.loadAccessory(accessory));
-    }
-
     private void setHandAcc(AssetDatabase db, String item) {
         rightHandAcc = getPicture(db.getSVGForAsset(ASSET_ACCESSORIES, item, "righthand"));
         leftHandAcc = getPicture(db.getSVGForAsset(ASSET_ACCESSORIES, item, "lefthand"));
     }
-
-    private void setSets(AssetDatabase db, String set) {
-        setShirt(db, set);
-        setPants(db, set);
-        setShoes(db, set);
-        setHats(db, set);
-        setHandAcc(db, set);
-    }
     
     public void setConfig(AssetDatabase db, ConfigPart part, String item) {
     	switch(part) {
-        case sets:
-            setSets(db, item);
-            break;
-
         case hats:
             setHats(db, item);
             break;
 
-//    	case accessories:
-//            setAccessories(db, (Accessory)item);
-//    		break;
+    	case handAcc:
+            setHandAcc(db, item);
+    		break;
     		
     	case skinColor:
     		setSkinColor(db,Integer.parseInt(item));
@@ -312,11 +340,11 @@ public class AndroidDrawer {
     	}
     }
 
-    /**
-     * Sets a new android config.
-     * @param config the new configuration.
-     * @param db the asset database, for loading clothing and accessory vector graphics.
-     */
+//    /**
+//     * Sets a new android config.
+//     * @param config the new configuration.
+//     * @param db the asset database, for loading clothing and accessory vector graphics.
+//     */
 //    public void setAndroidConfig(AndroidConfig config, AssetDatabase db) {
 //        hairColor = config.getHairColor();
 //        skinColor = config.getSkinColor();
@@ -498,7 +526,7 @@ public class AndroidDrawer {
         //float topOfHair = POINT_BOTTOM_OF_HEAD.y - (POINT_BOTTOM_OF_HEAD.y - hairBounds.top) * droidHead.scaleY + (POINT_TOP_OF_BODY.y - POINT_BOTTOM_OF_HEAD.y);
         float bodyHeight = (POINT_BOTTOM_OF_BODY.y - POINT_TOP_OF_BODY.y) * droidBody.scaleY;
         float halfBodyHeight = bodyHeight/2;
-        
+
         droidHead.bound.set(CENTER_X - halfHeadWidth, POINT_BOTTOM_OF_HEAD.y - headHeight , CENTER_X + halfHeadWidth, POINT_BOTTOM_OF_HEAD.y);
         droidBody.bound.set(POINT_CENTER_OF_BODY.x - halfBodyWidth, POINT_CENTER_OF_BODY.y - halfBodyHeight,POINT_CENTER_OF_BODY.x + halfBodyWidth, POINT_CENTER_OF_BODY.y + halfBodyHeight);
         
@@ -564,7 +592,7 @@ public class AndroidDrawer {
      * Advance the animations one frame.
      */
     public void stepAnimations() {
-        antennaAnimation.step();
+        //antennaAnimation.step();
         final Collection<AndroidAnimation> anims = animations.values();
         for (AndroidAnimation anim : anims) {
             anim.step();

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="org.olpc.avatargen">
     <application
-        tools:replace="android:icon"
+        tools:replace="android:icon, theme"
        	android:icon="@drawable/icon"
        	android:hardwareAccelerated="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">

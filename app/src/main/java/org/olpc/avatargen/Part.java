@@ -3,8 +3,9 @@ package org.olpc.avatargen;
 import android.graphics.Picture;
 import android.graphics.RectF;
 
-public class Part {
+import org.json.JSONObject;
 
+public class Part {
     public Picture picture;
     public float scaleX;
     public float scaleY;
@@ -31,6 +32,11 @@ public class Part {
 		}
     }
 
+    public void setScale(float scaleX, float scaleY) {
+        this.scaleX = scaleX;
+        this.scaleY = scaleY;
+    }
+
     public Part(Picture picture) {
         this.picture = picture;
         scaleX = 1f;
@@ -47,5 +53,16 @@ public class Part {
     
     public boolean contains(float x, float y) { 	
     	return bound.contains(x, y);
+    }
+
+    public JSONObject getJson() {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("scaleX", scaleX);
+            json.put("scaleY", scaleY);
+        } catch (Exception e) {
+            Util.debug(e.getMessage());
+        }
+        return json;
     }
 }
