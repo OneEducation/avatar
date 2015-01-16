@@ -44,6 +44,8 @@ public class AvatarConfig {
                 jsonObject.put(AssetDatabase.ConfigPart.shoes.name(), item);
                 jsonObject.put(AssetDatabase.ConfigPart.hats.name(), item);
                 jsonObject.put(AssetDatabase.ConfigPart.handAcc.name(), item);
+                jsonObject.put(AssetDatabase.ConfigPart.hair.name(), item);
+                jsonObject.put(AssetDatabase.ConfigPart.bodyAcc.name(), item);
             } else {
                 jsonObject.put(part.name(), item);
             }

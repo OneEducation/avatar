@@ -67,6 +67,7 @@ public class AvatarDrawer {
     private Picture hats = null;
     private Picture rightHandAcc = null;
     private Picture leftHandAcc = null;
+    private Picture bodyAcc = null;
 
     /**
      * The accessories.
@@ -123,7 +124,7 @@ public class AvatarDrawer {
     private Paint workPaint;
 
     private int skinColor = ANDROID_COLOR;
-    private int hairColor;
+    private int hairColor = HAIR_COLOR_DEFAULT;
 
     private int backgroundRed = 0XFF;
     private int backgroundGreen = 0XFF;
@@ -174,6 +175,9 @@ public class AvatarDrawer {
                         continue;
                     }
                 }
+                computeArmOffset();
+                computeLegsOffset();
+                rescale();
             }
         });
     }
@@ -256,6 +260,7 @@ public class AvatarDrawer {
     }
 
 	private void setHairColor(AssetDatabase db, int color) {
+        hairColor = color;
 		hairBack = getPicture(db.getSVGForAsset(ASSET_HAIR, this.hair, HAIR_BACK, HAIR_COLOR_DEFAULT, color));
         hairFront = getPicture(db.getSVGForAsset(ASSET_HAIR, this.hair, HAIR_FRONT, HAIR_COLOR_DEFAULT, color));
 	}
@@ -296,6 +301,10 @@ public class AvatarDrawer {
         rightHandAcc = getPicture(db.getSVGForAsset(ASSET_ACCESSORIES, item, "righthand"));
         leftHandAcc = getPicture(db.getSVGForAsset(ASSET_ACCESSORIES, item, "lefthand"));
     }
+
+    private void setBodyAcc(AssetDatabase db, String item) {
+        bodyAcc = getPicture(db.getSVGForAsset(ASSET_ACCESSORIES, item, "body"));
+    }
     
     public void setConfig(AssetDatabase db, ConfigPart part, String item) {
     	switch(part) {
@@ -306,6 +315,10 @@ public class AvatarDrawer {
     	case handAcc:
             setHandAcc(db, item);
     		break;
+
+        case bodyAcc:
+            setBodyAcc(db, item);
+            break;
     		
     	case skinColor:
     		setSkinColor(db,Integer.parseInt(item));
@@ -339,6 +352,8 @@ public class AvatarDrawer {
 			break;
     	}
     }
+
+
 
 //    /**
 //     * Sets a new android config.
@@ -935,7 +950,7 @@ public class AvatarDrawer {
         }
         // Draw shirt top and body accessory
         {
-            Picture accessory = accessories.getPictureForType(Accessory.TYPE_BODY);
+            Picture accessory = bodyAcc; //accessories.getPictureForType(Accessory.TYPE_BODY);
             // Now shirt top (scaled to body directly)
             if (shirtTop != null || accessory != null) {
                 canvas.save();

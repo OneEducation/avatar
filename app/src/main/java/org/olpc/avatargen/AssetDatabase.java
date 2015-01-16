@@ -50,7 +50,7 @@ public class AssetDatabase {
     private AssetManager assetManager;
     private Resources resources;
     
-    public enum ConfigPart {hair, shirt, pants, shoes, glasses, beard, accessories, skinColor, hairColor, hats, sets, handAcc};
+    public enum ConfigPart {hair, shirt, pants, shoes, glasses, beard, accessories, skinColor, hairColor, hats, sets, handAcc, bodyAcc};
 
     private AndroidConfig    config;
 
