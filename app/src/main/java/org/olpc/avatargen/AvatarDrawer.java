@@ -134,6 +134,7 @@ public class AvatarDrawer {
     private float driftAngle;
 
 	private String hair;
+    private float hatHeightDiff;
 
     /**
      * Sets the zoom information for this android drawer, which will also reset the drift animation.
@@ -347,6 +348,10 @@ public class AvatarDrawer {
     	case hairColor:
     		setHairColor(db, Integer.parseInt(item));
     		break;
+
+        case beard:
+            beard = getPicture(db.getSVGForAsset(ASSET_BEARD, item, null));
+            break;
     		
 		default:
 			break;
@@ -533,7 +538,10 @@ public class AvatarDrawer {
         // Also consider a tall hat
         //SVG hat = accessories.getSVGForType(Accessory.TYPE_HEAD);
         if (hats != null) { // && hat.getLimits() != null) {
-            topHeight = Math.min(topHeight, 50); //hat.getLimits().top);
+            Util.debug(""+hats.getHeight());
+            hatHeightDiff = hats.getHeight() - 500;
+            if(hatHeightDiff < 0) hatHeightDiff=0;
+            topHeight -= hatHeightDiff;
         }
         float tHeight = topHeight;
         headHeight = (POINT_BOTTOM_OF_HEAD.y - tHeight) * droidHead.scaleY + (POINT_TOP_OF_BODY.y - POINT_BOTTOM_OF_HEAD.y);
@@ -998,7 +1006,10 @@ public class AvatarDrawer {
                 mouthAccessory.draw(canvas);
             }
             if (hats != null) {
+                canvas.save();
+                canvas.translate(0, -hatHeightDiff);
                 hats.draw(canvas);
+                canvas.restore();
             }
             canvas.restore();
         }
