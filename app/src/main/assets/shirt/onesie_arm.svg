@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="500px" height="500px" viewBox="0 0 500 500" enable-background="new 0 0 500 500" xml:space="preserve">
+<g id="clothes">
+</g>
+<path display="none" fill="#CAD7D7" d="M251.227,5.982V5.971c-0.098,0-0.192,0.006-0.291,0.006c-0.098,0-0.192-0.006-0.291-0.006
+	v0.012c-57.167,0.245-103.41,36.321-103.41,80.807v109.924H252.96h101.662V86.789C354.621,42.303,308.393,6.228,251.227,5.982z
+	 M331.764,134.667H173.479V98.992h0.072c1.5-35.169,36.451-63.305,79.375-63.305c43.877,0,79.447,29.396,79.447,65.655
+	c0,3.705-0.218,7.191-0.609,10.493V134.667z"/>
+<rect x="147.235" y="180" display="none" fill="#A2AEAE" width="207.388" height="16.713"/>
+<path fill="#8B5041" d="M160.742,333.931c0,15.043-50.814,15.043-50.814,0V220.784c0-15.043,9.824-27.351,21.832-27.351h7.149
+	c12.009,0,21.833,12.308,21.833,27.351V333.931z"/>
+</svg>
