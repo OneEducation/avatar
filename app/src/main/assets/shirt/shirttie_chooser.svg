@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="content" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="500px" height="500px" viewBox="0 0 500 500" enable-background="new 0 0 500 500" xml:space="preserve">
+<rect id="position" x="0.5" y="0.5" display="none" fill="none" stroke="#000000" width="499" height="499"/>
+<g>
+	<polygon fill="#F0EFED" points="374.6,110.8 355.9,96.7 352.9,96.7 288.884,96.7 250.384,125.8 249.9,125.8 251.033,125.8 
+		213.333,96.7 146.4,96.7 143.4,96.7 124.7,110.8 69,181.8 69,362.801 130.3,362.801 130.3,199.9 146.4,194.5 146.4,402.301 
+		352.9,402.301 352.9,194.5 369,199.9 369,362.801 430.3,362.801 430.3,181.8 	"/>
+	<polygon fill="#E0E0DE" points="251.033,125.8 202.833,138.1 203.934,96.7 214.333,96.7 	"/>
+	<polygon fill="#B0B1AF" points="252.366,126.026 207.734,141.863 207.533,136.9 251.033,125.8 	"/>
+	<polygon fill="#E0E0DE" points="250.384,125.8 299.485,138.1 298.384,96.7 287.985,96.7 	"/>
+	<polygon fill="#B0B1AF" points="250,126.778 294.485,141.863 294.685,136.9 250.384,125.8 	"/>
+</g>
+<rect x="69" y="351.7" fill="#E0E0DE" width="61.3" height="12.2"/>
+<rect x="369" y="351.7" fill="#E0E0DE" width="61.3" height="12.2"/>
+<rect x="247.795" y="125.8" fill="#BCBCBC" width="2.31" height="276.501"/>
+<circle fill="#BCBCBC" cx="256.892" cy="166.346" r="2.27"/>
+<circle fill="#BCBCBC" cx="256.892" cy="203.746" r="2.27"/>
+<circle fill="#BCBCBC" cx="256.892" cy="241.147" r="2.27"/>
+<circle fill="#BCBCBC" cx="256.892" cy="278.548" r="2.27"/>
+<circle fill="#BCBCBC" cx="256.892" cy="315.829" r="2.271"/>
+<circle fill="#BCBCBC" cx="256.892" cy="353.23" r="2.27"/>
+<circle fill="#BCBCBC" cx="256.892" cy="390.63" r="2.271"/>
+<polygon fill-rule="evenodd" clip-rule="evenodd" fill="#BD2131" points="250.252,162.082 245.323,162.082 226.525,300.983 
+	250.76,333.827 "/>
+<path fill-rule="evenodd" clip-rule="evenodd" fill="#BD2131" d="M244.946,165.347h5.341l0.004-39.548
+	C230.465,133.483,233.905,143.419,244.946,165.347z"/>
+<polygon fill-rule="evenodd" clip-rule="evenodd" fill="#A71D2A" points="250.255,162.082 255.185,162.082 273.477,303.104 
+	250.76,333.827 "/>
+<path fill-rule="evenodd" clip-rule="evenodd" fill="#A71D2A" d="M255.631,165.347h-5.341V125.8
+	C270.112,133.483,266.672,143.419,255.631,165.347z"/>
+</svg>

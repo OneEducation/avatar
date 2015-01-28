@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="content" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="500px" height="500px" viewBox="0 0 500 500" enable-background="new 0 0 500 500" xml:space="preserve">
+<rect id="position" x="0" y="0" fill="none" width="500" height="500"/>
+<g id="bounds">
+	<rect x="0.2" y="0.132" fill="none" width="499.497" height="499.501"/>
+</g>
+<rect id="position_1_" x="0" y="0" fill="none" width="500" height="500"/>
+<g id="bounds_1_">
+	<rect x="0" y="0" fill="none" width="499.498" height="499.5"/>
+</g>
+<g>
+	<circle fill="#BFBFC0" cx="249.928" cy="263.853" r="122.28"/>
+</g>
+<g>
+	<circle fill="#FFFFFF" cx="203.694" cy="251.209" r="21.57"/>
+	<circle fill="#FFFFFF" cx="294.414" cy="251.209" r="21.57"/>
+	<path fill="#FFFFFF" d="M271.499,312.284c0,11.912-9.656,21.569-21.571,21.569c-11.913,0-21.571-9.657-21.571-21.569H271.499z"/>
+</g>
+<g id="avatar">
+	<path fill="#382800" d="M249.927,191.419c-3.292,0.533-6.632-1.247-9.292-3.344c-12.312-9.694-17.021-26.25-18.151-41.878
+		c-1.635-22.583,2.781-45.575,12.669-65.945c0.316,8.438,1.023,16.859,2.117,25.23c0.779-13.123,2.07-26.216,3.874-39.238
+		c0.99,7.825,1.979,15.652,2.967,23.479c1.94-9.741,3.877-19.481,5.817-29.225c1.938,9.741,3.878,19.481,5.817,29.225
+		c0.987-7.827,1.978-15.654,2.968-23.479c1.8,13.022,3.095,26.115,3.872,39.238c1.094-8.37,1.801-16.794,2.117-25.23
+		c9.888,20.37,14.305,43.362,12.669,65.945c-1.132,15.629-5.839,32.184-18.151,41.878
+		C256.559,190.172,253.218,191.952,249.927,191.419z"/>
+</g>
+<g id="robot_1_">
+</g>
+<g id="robot">
+</g>
+</svg>

@@ -11,11 +11,7 @@ import org.json.JSONObject;
 
 import java.util.*;
 
-import rx.*;
-import rx.Observable;
 import rx.functions.Action1;
-import rx.subjects.PublishSubject;
-import rx.subjects.Subject;
 
 import static org.olpc.avatargen.Constants.*;
 import static org.olpc.avatargen.AssetDatabase.*;
@@ -67,7 +63,8 @@ public class AvatarDrawer {
     private Picture hats = null;
     private Picture rightHandAcc = null;
     private Picture leftHandAcc = null;
-    private Picture bodyAcc = null;
+    private Picture bodyAccFront = null;
+    private Picture faceAcc = null;
 
     /**
      * The accessories.
@@ -134,7 +131,9 @@ public class AvatarDrawer {
     private float driftAngle;
 
 	private String hair;
-    private float hatHeightDiff;
+    private int     hatHeightDiff;
+    private int     hairHeightDiff;
+    private Picture bodyAccBack;
 
     /**
      * Sets the zoom information for this android drawer, which will also reset the drift animation.
@@ -304,7 +303,8 @@ public class AvatarDrawer {
     }
 
     private void setBodyAcc(AssetDatabase db, String item) {
-        bodyAcc = getPicture(db.getSVGForAsset(ASSET_ACCESSORIES, item, "body"));
+        bodyAccFront = getPicture(db.getSVGForAsset(ASSET_BODYACC, item, "front"));
+        bodyAccBack = getPicture(db.getSVGForAsset(ASSET_BODYACC, item, "back"));
     }
     
     public void setConfig(AssetDatabase db, ConfigPart part, String item) {
@@ -351,6 +351,10 @@ public class AvatarDrawer {
 
         case beard:
             beard = getPicture(db.getSVGForAsset(ASSET_BEARD, item, null));
+            break;
+
+        case face:
+            faceAcc = getPicture(db.getSVGForAsset(ASSET_FACE, item, null));
             break;
     		
 		default:
@@ -537,12 +541,18 @@ public class AvatarDrawer {
         float topHeight = Math.min(HEAD_BOUNDS_TOP, hairBounds.top);
         // Also consider a tall hat
         //SVG hat = accessories.getSVGForType(Accessory.TYPE_HEAD);
-        if (hats != null) { // && hat.getLimits() != null) {
-            Util.debug(""+hats.getHeight());
+        hatHeightDiff=0;
+        hairHeightDiff=0;
+
+        if (hats != null && hats.getHeight() > 500) {
             hatHeightDiff = hats.getHeight() - 500;
-            if(hatHeightDiff < 0) hatHeightDiff=0;
-            topHeight -= hatHeightDiff;
         }
+
+        if (hairFront != null && hairFront.getHeight() > 500) {
+            hairHeightDiff = hairFront.getHeight() - 500;
+        }
+        topHeight -= Math.max(hatHeightDiff, hairHeightDiff);
+
         float tHeight = topHeight;
         headHeight = (POINT_BOTTOM_OF_HEAD.y - tHeight) * droidHead.scaleY + (POINT_TOP_OF_BODY.y - POINT_BOTTOM_OF_HEAD.y);
         //float topOfHead = POINT_BOTTOM_OF_HEAD.y - (POINT_BOTTOM_OF_HEAD.y - HEAD_BOUNDS_TOP) * droidHead.scaleY + (POINT_TOP_OF_BODY.y - POINT_BOTTOM_OF_HEAD.y);
@@ -738,11 +748,17 @@ public class AvatarDrawer {
             }
             canvas.restore();
         }
+
         // Draw body
         {
             canvas.save();
             canvas.save(Canvas.MATRIX_SAVE_FLAG);
             canvas.scale(droidBody.scaleX, droidBody.scaleY, POINT_TOP_OF_BODY.x, POINT_TOP_OF_BODY.y);
+            if (bodyAccBack != null) {
+                canvas.save();
+                bodyAccBack.draw(canvas);
+                canvas.restore();
+            }
             canvas.clipPath(bodyClip);
             droidBody.picture.draw(canvas);
             canvas.restore();
@@ -860,7 +876,7 @@ public class AvatarDrawer {
 
         // Draw head
         {
-            Picture faceAccessory = accessories.getPictureForType(Accessory.TYPE_FACE);
+            //faceAcc = accessories.getPictureForType(Accessory.TYPE_FACE);
             canvas.save();
             if (headTilt != null) {
                 canvas.rotate(headTilt.getValue(), POINT_BOTTOM_OF_HEAD.x, POINT_BOTTOM_OF_HEAD.y);
@@ -900,8 +916,8 @@ public class AvatarDrawer {
 //                }
 //            }
             // Draw face accessory
-            if (faceAccessory != null) {
-                faceAccessory.draw(canvas);
+            if (faceAcc != null) {
+                faceAcc.draw(canvas);
             }
 //            // Draw eyes
 //            workPaint.setColor(Color.WHITE);
@@ -958,8 +974,8 @@ public class AvatarDrawer {
         }
         // Draw shirt top and body accessory
         {
-            Picture accessory = bodyAcc; //accessories.getPictureForType(Accessory.TYPE_BODY);
-            // Now shirt top (scaled to body directly)
+            Picture accessory = bodyAccFront; //accessories.getPictureForType(Accessory.TYPE_BODY);
+            // Now shirt top (scaled to body directly)g
             if (shirtTop != null || accessory != null) {
                 canvas.save();
                 canvas.scale(droidBody.scaleX, droidBody.scaleY, POINT_TOP_OF_BODY.x, POINT_TOP_OF_BODY.y);
@@ -991,6 +1007,7 @@ public class AvatarDrawer {
             }
             if (hairFront != null) {
                 canvas.save();
+                canvas.translate(0, -hairHeightDiff);
                 hairFront.draw(canvas);
                 canvas.restore();
             }
@@ -1184,7 +1201,7 @@ public class AvatarDrawer {
         transform.preScale(scaleFactor, scaleFactor, POINT_BOTTOM_OF_HEAD.x, POINT_BOTTOM_OF_HEAD.y);
         
     	canvas.drawARGB(0xFF, backgroundRed, backgroundGreen, backgroundBlue);
-        Picture faceAccessory = accessories.getPictureForType(Accessory.TYPE_FACE);
+        //faceAcc = accessories.getPictureForType(Accessory.TYPE_FACE);
         canvas.save();
         canvas.concat(transform);
         
@@ -1229,8 +1246,8 @@ public class AvatarDrawer {
 //	            canvas.restore();
 	        }
 	        // Draw face accessory
-	        if (faceAccessory != null) {
-	            faceAccessory.draw(canvas);
+	        if (faceAcc != null) {
+                faceAcc.draw(canvas);
 	        }
 //	        // Draw eyes
 //	        workPaint.setColor(Color.WHITE);

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="500px"
+	 height="500px" viewBox="0 0 500 500" enable-background="new 0 0 500 500" xml:space="preserve">
+<g id="avatar">
+</g>
+<g id="tennis">
+	<g>
+		<circle fill="#901E1D" cx="384.24" cy="360.274" r="20.246"/>
+		<circle fill="#FEFFE0" cx="378.657" cy="356.125" r="4.149"/>
+		<g>
+			<g>
+				<path fill="none" stroke="#FEFFE0" stroke-miterlimit="10" d="M401.325,349.418c-0.059,0.332-0.121,0.66-0.186,0.983"/>
+				<path fill="none" stroke="#FEFFE0" stroke-miterlimit="10" stroke-dasharray="1.9999,1.9999" d="M400.696,352.352
+					c-5.013,19.723-22.353,22.38-28.257,22.707"/>
+				<path fill="none" stroke="#FEFFE0" stroke-miterlimit="10" d="M371.447,375.096c-0.639,0.013-0.996-0.004-0.996-0.004"/>
+			</g>
+		</g>
+		<g>
+			<g>
+				<path fill="none" stroke="#FEFFE0" stroke-miterlimit="10" d="M399.948,348.041c-0.059,0.332-0.121,0.66-0.186,0.983"/>
+				<path fill="none" stroke="#FEFFE0" stroke-miterlimit="10" stroke-dasharray="1.9999,1.9999" d="M399.319,350.975
+					c-5.013,19.723-22.353,22.38-28.257,22.707"/>
+				<path fill="none" stroke="#FEFFE0" stroke-miterlimit="10" d="M370.07,373.719c-0.639,0.013-0.996-0.004-0.996-0.004"/>
+			</g>
+		</g>
+	</g>
+</g>
+</svg>

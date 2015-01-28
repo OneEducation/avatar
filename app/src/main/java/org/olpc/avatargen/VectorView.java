@@ -97,7 +97,8 @@ public class VectorView extends View
         }
 
         if (!flag) {
-            RectF rectf = limit; //defaultBound;
+            RectF rectf = limit; //new RectF(0,0,500f,500f); //defaultBound;
+            //float marginX = (rectf.width() - getWidth())/2;
             //rectf.
             if (rectf != null)
             {

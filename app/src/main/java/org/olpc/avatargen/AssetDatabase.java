@@ -26,6 +26,8 @@ public class AssetDatabase {
     public static final String ASSET_ACCESSORIES = "accessories";
     public static final String ASSET_SETS = "sets";
     public static final String ASSET_HATS = "hats";
+    public static final String ASSET_FACE = "face";
+    public static final String ASSET_BODYACC = "bodyAcc";
 
     public static final String SHIRT_ARM = "arm";
     public static final String SHIRT_BODY = "body";
@@ -46,11 +48,13 @@ public class AssetDatabase {
     public ArrayList<String> accessoryAssets;
     public ArrayList<String> setAssets;
     public ArrayList<String> hatAssets;
+    public ArrayList<String> faceAssets;
+    public ArrayList<String> bodyAccAssets;
 
     private AssetManager assetManager;
     private Resources resources;
     
-    public enum ConfigPart {hair, shirt, pants, shoes, glasses, beard, accessories, skinColor, hairColor, hats, sets, handAcc, bodyAcc};
+    public enum ConfigPart {hair, shirt, pants, shoes, glasses, beard, accessories, skinColor, hairColor, hats, sets, handAcc, bodyAcc, face};
 
     private AndroidConfig    config;
 
@@ -98,6 +102,14 @@ public class AssetDatabase {
 //            beardAssets = new ArrayList<String>(loadElements(ASSET_BEARD));
 //            Collections.sort(beardAssets);
 //        }
+        if (bodyAccAssets == null) {
+            bodyAccAssets = new ArrayList<String>(loadElements(ASSET_BODYACC));
+            Collections.sort(bodyAccAssets);
+        }
+        if (faceAssets == null) {
+            faceAssets = new ArrayList<String>(loadElements(ASSET_FACE));
+            Collections.sort(faceAssets);
+        }
         if (accessoryAssets == null) {
             accessoryAssets = new ArrayList<String>(loadElements(ASSET_ACCESSORIES));
             Collections.sort(accessoryAssets);

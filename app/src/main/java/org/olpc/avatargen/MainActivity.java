@@ -1,5 +1,6 @@
 package org.olpc.avatargen;
 
+import static android.widget.LinearLayout.LayoutParams.*;
 import static org.olpc.avatargen.AssetDatabase.ASSET_HAIR;
 import static org.olpc.avatargen.AssetDatabase.HAIR_FRONT;
 import static org.olpc.avatargen.Constants.ANDROID_COLOR;
@@ -85,8 +86,11 @@ public class MainActivity extends Activity {
 			R.drawable.shoesicon,
 			R.drawable.glassesicon,
 			R.drawable.hairicon,
-            R.drawable.hairicon,
-			R.drawable.haircoloricon
+            R.drawable.hairicon,    //sets
+			R.drawable.haircoloricon,
+            R.drawable.hairicon,     //hats
+            R.drawable.glassesicon,  //face acc
+            R.drawable.shoesicon    // body acc
 	};
 
     enum Status {
@@ -309,6 +313,9 @@ public class MainActivity extends Activity {
                 arr.add(makeMenu(ConfigPart.hair, db.hairAssets, "chooser"));
                 arr.add(makeMenu(ConfigPart.sets, db.setAssets, "chooser"));
                 arr.add(makeHairMenu());
+                arr.add(makeMenu(ConfigPart.hats, db.hatAssets, "chooser"));
+                arr.add(makeMenu(ConfigPart.face, db.faceAssets, "chooser"));
+                arr.add(makeMenu(ConfigPart.bodyAcc, db.bodyAccAssets, "chooser"));
                 Util.debug("end making menu");
 
                 for(int i=0; i< arr.size(); i++) {
@@ -515,7 +522,7 @@ public class MainActivity extends Activity {
 	    LL.setBackgroundColor(Color.WHITE);
 	    LL.setOrientation(LinearLayout.VERTICAL);
 
-	    LayoutParams LLParams = new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.MATCH_PARENT);
+	    LayoutParams LLParams = new LayoutParams(WRAP_CONTENT, MATCH_PARENT);
 	    LL.setLayoutParams(LLParams);
 	    return LL;
 	}
@@ -526,6 +533,7 @@ public class MainActivity extends Activity {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                int i=0;
                 for(String item : arrItem) {
                     //SVG s = db.getSVGForAsset(part.name(), item, "chooser");
                     //if(s==null)
@@ -533,8 +541,11 @@ public class MainActivity extends Activity {
 
                     if(s==null) continue;
 
-                    final VectorView vv = new VectorView(getApplicationContext());
-                    vv.setVectors(new SVG[] {s});
+                    //final VectorView vv = new VectorView(getApplicationContext());
+                    //vv.setVectors(new SVG[] {s});
+                    final ImageView vv = new ImageView(getApplicationContext());
+                    vv.setImageDrawable(s.createPictureDrawable());
+                    //if(i%2==0) vv.setBackgroundColor(getResources().getColor(R.color.button_material_light));
                     vv.setTag(item);
                     vv.setOnClickListener(new OnClickListener() {
 
@@ -547,9 +558,11 @@ public class MainActivity extends Activity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            LL.addView(vv);
+                            LL.addView(vv, new LayoutParams(MATCH_PARENT, (int)dipToPixels(160)));
                         }
                     });
+
+                    ++i;
 
                 }
             }

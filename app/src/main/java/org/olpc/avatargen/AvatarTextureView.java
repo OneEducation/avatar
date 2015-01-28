@@ -273,9 +273,10 @@ public class AvatarTextureView extends TextureView implements TextureView.Surfac
 	public void onSurfaceTextureAvailable(SurfaceTexture arg0, int width, int height) {
         this.width = width;
         this.height = height;
-		if(engine != null)
+		if(engine != null) {
             engine.setScreen(width, height);
-		
+            printMessage("width : "+width+" / height : "+height);
+        }
 	}
 
 	@Override
