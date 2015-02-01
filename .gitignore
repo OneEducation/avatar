@@ -4,4 +4,4 @@
 build/
 app/build/
 .DS_Store
-
+local.properties
