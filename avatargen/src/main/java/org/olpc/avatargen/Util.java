@@ -4,7 +4,7 @@ import android.util.Log;
 
 public class Util {
 
-    public static boolean debugMode = true;
+    public static boolean debugMode = false;
 
     private static String tag = "AvatarGen";
 

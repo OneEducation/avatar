@@ -1,1 +1,1 @@
-include ':app', 'svgandroid', ':android_client_library'
+include ':avatargen', 'svgandroid', ':android_client_library'
