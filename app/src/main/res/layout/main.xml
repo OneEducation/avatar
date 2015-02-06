@@ -90,8 +90,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginTop="30dp"
         android:layout_marginStart="30dp"
-        android:src="@drawable/ic_arrow_left_grey8_36dp"
-        android:background="@android:color/white"/>
+        android:src="@drawable/ic_arrow_left_white_36dp"/>
 
 
     <android.support.v4.widget.ContentLoadingProgressBar
