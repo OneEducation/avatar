@@ -53,8 +53,9 @@ public class AssetDatabase {
 
     private AssetManager assetManager;
     private Resources resources;
-    
-    public enum ConfigPart {hair, shirt, pants, shoes, glasses, beard, accessories, skinColor, hairColor, hats, sets, handAcc, bodyAcc, face};
+    public ArrayList<String> backgroundAssets;
+
+    public enum ConfigPart {hair, shirt, pants, shoes, glasses, beard, accessories, skinColor, hairColor, hats, sets, handAcc, bodyAcc, face, backgrounds};
 
     private AndroidConfig    config;
 
@@ -121,6 +122,10 @@ public class AssetDatabase {
         if (hatAssets == null) {
             hatAssets = new ArrayList<String>(loadElements(ASSET_HATS));
             Collections.sort(hatAssets);
+        }
+        if (backgroundAssets == null) {
+            backgroundAssets = new ArrayList<String>(loadElements("backgrounds"));
+            Collections.sort(backgroundAssets);
         }
     }
 

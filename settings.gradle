@@ -1,2 +1,1 @@
-include ':app'
-include ':android_client_library'
+include ':app', 'svgandroid', ':android_client_library'

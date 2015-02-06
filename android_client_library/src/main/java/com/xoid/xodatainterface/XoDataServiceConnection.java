@@ -50,26 +50,14 @@ public class XoDataServiceConnection {
     this.context = context;
     ensureBoundToService();
   }
-  
+
   // Can block due to potentially needing to spin up the Service.
-  public boolean isStudentLoggedIn() throws RemoteException, InterruptedException {
+  public String getDataJson() throws RemoteException, InterruptedException {
     ensureBoundToService();
 
     try {
       waitUntilConnected();
-      return remoteService.isStudentLoggedIn();
-    } finally {
-      serviceConnectionLock.readLock().unlock();
-    }
-  }
-  
-  // Can block due to potentially needing to spin up the Service.
-  public String getStudentDataJson() throws RemoteException, InterruptedException {
-    ensureBoundToService();
-
-    try {
-      waitUntilConnected();
-      return remoteService.getStudentDataJson();
+      return remoteService.getDataJson();
     } finally {
       serviceConnectionLock.readLock().unlock();
     }
@@ -78,7 +66,8 @@ public class XoDataServiceConnection {
   private void ensureBoundToService() {
     serviceConnectionLock.readLock().lock();
     if (remoteService == null) {
-      Intent intent = new Intent(DATA_ACTION);
+      Intent intent = new Intent();
+      intent.setComponent(new ComponentName("com.xosignin", "com.xosignin.service.XoDataService"));
       context.bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
     serviceConnectionLock.readLock().unlock();

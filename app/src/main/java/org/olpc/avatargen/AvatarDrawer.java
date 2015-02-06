@@ -65,6 +65,8 @@ public class AvatarDrawer {
     private Picture leftHandAcc = null;
     private Picture bodyAccFront = null;
     private Picture faceAcc = null;
+    private Picture bodyAccBack;
+    private Picture backGround;
 
     /**
      * The accessories.
@@ -133,7 +135,7 @@ public class AvatarDrawer {
 	private String hair;
     private int     hatHeightDiff;
     private int     hairHeightDiff;
-    private Picture bodyAccBack;
+
 
     /**
      * Sets the zoom information for this android drawer, which will also reset the drift animation.
@@ -150,6 +152,8 @@ public class AvatarDrawer {
         droidHead = config.droidHead;
         droidArm = config.droidArm;
         droidLegs = config.droidLegs;
+
+        backGround = getPicture(db.getSVGForAsset("backgrounds", "Beach", null));   // default
 
         armPath = new Path();
         createArmPath();
@@ -206,6 +210,8 @@ public class AvatarDrawer {
         reverseTransform = new Matrix();
         workPaint = new Paint();
         workPaint.setAntiAlias(true);
+
+
 
 //        armPath = new Path();
 //        createArmPath();
@@ -356,7 +362,11 @@ public class AvatarDrawer {
         case face:
             faceAcc = getPicture(db.getSVGForAsset(ASSET_FACE, item, null));
             break;
-    		
+
+        case backgrounds:
+            backGround = getPicture(db.getSVGForAsset("backgrounds", item, null));
+    		break;
+
 		default:
 			break;
     	}
@@ -649,8 +659,10 @@ public class AvatarDrawer {
      * @param canvas the canvas on which to draw the android.
      */
     public void draw(Canvas canvas, boolean drawBackground) {
-        if(drawBackground)
-            canvas.drawARGB(0xFF, backgroundRed, backgroundGreen, backgroundBlue);
+        if(drawBackground) {
+            backGround.draw(canvas);
+            //canvas.drawARGB(0xFF, backgroundRed, backgroundGreen, backgroundBlue);
+        }
 
         int startCount = canvas.getSaveCount();
         canvas.save();
@@ -1197,7 +1209,7 @@ public class AvatarDrawer {
         float scaleY = height / headHeight;
         float scaleFactor = Math.min(scaleX, scaleY);
     	Matrix transform = new Matrix();
-        transform.preTranslate(width/2 - POINT_BOTTOM_OF_HEAD.x, (height - POINT_BOTTOM_OF_HEAD.y)/2);
+        transform.preTranslate(width/2 - POINT_BOTTOM_OF_HEAD.x, (height - POINT_BOTTOM_OF_HEAD.y + Math.max(hatHeightDiff, hairHeightDiff))/2);
         transform.preScale(scaleFactor, scaleFactor, POINT_BOTTOM_OF_HEAD.x, POINT_BOTTOM_OF_HEAD.y);
         
     	canvas.drawARGB(0xFF, backgroundRed, backgroundGreen, backgroundBlue);
@@ -1299,6 +1311,7 @@ public class AvatarDrawer {
             }
             if (hairFront != null) {
                 canvas.save();
+                canvas.translate(0, -hairHeightDiff);
                 hairFront.draw(canvas);
                 canvas.restore();
             }
@@ -1314,7 +1327,10 @@ public class AvatarDrawer {
                 mouthAccessory.draw(canvas);
             }
             if (hats != null) {
+                canvas.save();
+                canvas.translate(0, -hatHeightDiff);
                 hats.draw(canvas);
+                canvas.restore();
             }
             canvas.restore();
         }

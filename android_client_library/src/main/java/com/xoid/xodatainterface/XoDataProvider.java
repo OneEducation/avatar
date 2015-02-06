@@ -8,16 +8,11 @@ import android.content.Intent;
 import android.os.RemoteException;
 
 public class XoDataProvider {
-  public interface StudentDataCallback {
-    void onStudentDataAvailable(String studentData);
+  public interface DataCallback {
+    void onDataAvailable(String data);
     void onError(String description);
   }
-  
-  public interface IsStudentLoggedInCallback {
-    void onIsStudentLoggedInAvailable(boolean isLoggedIn);
-    void onError(String description);
-  }
-  
+
   private final XoDataServiceConnection xoDataServiceConnection;
   private final ExecutorService executor = Executors.newSingleThreadExecutor();
   
@@ -30,32 +25,16 @@ public class XoDataProvider {
     context.startActivity(intent);
   }
   
-  public void requestIsStudentLoggedIn(final IsStudentLoggedInCallback callback) {
+  public void requestStudentData(final DataCallback callback) {
     executor.submit(new Runnable() {
       @Override
       public void run() {
         try {
-          boolean loggedIn = xoDataServiceConnection.isStudentLoggedIn();
-          callback.onIsStudentLoggedInAvailable(loggedIn);
-        } catch (RemoteException e) {
-          callback.onError(e.getMessage());
-        } catch (InterruptedException e) {
-          callback.onError(e.getMessage());
-        }
-      }
-    });
-  }
-  
-  public void requestStudentData(final StudentDataCallback callback) {
-    executor.submit(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          String studentData = xoDataServiceConnection.getStudentDataJson();
-          if (studentData != null) {
-            callback.onStudentDataAvailable(studentData);
+          String data = xoDataServiceConnection.getDataJson();
+          if (data != null) {
+            callback.onDataAvailable(data);
           } else {
-            callback.onError("Student not logged in, data unavailable");
+            callback.onError("No logged in user, data unavailable");
           }
         } catch (RemoteException e) {
           callback.onError(e.getMessage());
@@ -65,5 +44,4 @@ public class XoDataProvider {
       }
     });
   }
-  
 }

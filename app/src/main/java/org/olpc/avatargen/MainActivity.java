@@ -69,7 +69,9 @@ public class MainActivity extends Activity {
     private FloatingActionButton2   fabCamera;              // camera button - bottom / right area
     private ImageButton             backButton;             // back button - top / left area
     private ContentLoadingProgressBar progress;
-    private String                  studentToken = "unknown";
+    private String                  userToken;
+    private String                  uploadPath;
+    private String                  uploadHeader;
 
     private Bitmap                  bitmapHead;             //
     private Bitmap                  bitmapBody;             //
@@ -79,18 +81,21 @@ public class MainActivity extends Activity {
 
     private AvatarConfig            avatarConfig;
 
+    private XoDataProvider          xoDataProvider;
+
     private int[] icons = {                         // icon images for select parts menu
-			R.drawable.bodyicon,
-			R.drawable.shirticon,
-			R.drawable.pantsicon,
-			R.drawable.shoesicon,
-			R.drawable.glassesicon,
-			R.drawable.hairicon,
-            R.drawable.hairicon,    //sets
-			R.drawable.haircoloricon,
-            R.drawable.hairicon,     //hats
-            R.drawable.glassesicon,  //face acc
-            R.drawable.shoesicon    // body acc
+			R.raw.skin_colour,
+            R.raw.hair_colour,
+            R.raw.set,
+			R.raw.top,
+            R.raw.bottoms,
+            R.raw.shoes,
+			R.raw.eye_wear,
+			R.raw.hair_type,
+            R.raw.hats,
+            R.raw.hair_accessorie,  //face acc
+            R.raw.body_accessorie,
+            R.raw.background
 	};
 
     enum Status {
@@ -112,16 +117,28 @@ public class MainActivity extends Activity {
     Callback uploadCallback = new Callback() {
         int responseCount = 0;
         int successCount = 0;
+        String HeadServerURL;
+        String BodyServerURL;
 
         public void reset() {
             responseCount = 0;
             successCount = 0;
         }
         @Override
-        public void onFinished(HttpResponse res) {
+        public void onFinished(HttpResponse res, JSONObject resJson) {
             responseCount++;
             Util.debug("response code : "+res.getStatusLine().getStatusCode());
             if(res.getStatusLine().getStatusCode() == 200) {
+                try {
+                    if(resJson.getJSONObject("ok").getString("name").equals("ss_head.png")) {
+                        HeadServerURL = resJson.getJSONObject("ok").getString("url");
+                    } else {
+                        BodyServerURL = resJson.getJSONObject("ok").getString("url");
+                    }
+                } catch(JSONException e) {
+                    e.printStackTrace();
+                }
+
                 successCount++;
             }
 
@@ -137,8 +154,8 @@ public class MainActivity extends Activity {
                                 public void onPositive(MaterialDialog dialog) {
                                     if (mRunMode == RunMode.from_xoid) {
                                         Intent result = new Intent();
-                                        result.putExtra("URL_BODY", URL_SS_BODY);
-                                        result.putExtra("URL_HEAD", URL_SS_HEAD);
+                                        result.putExtra("URL_BODY", BodyServerURL);
+                                        result.putExtra("URL_HEAD", HeadServerURL);
                                         setResult(Activity.RESULT_OK, result);
                                     }
                                     finish();
@@ -177,11 +194,11 @@ public class MainActivity extends Activity {
     private void requestUpload() {
         progress.show();
         uploadCallback.reset();
-
-        new AsyncFileThread("http://id.one-education.org/student-avatar/large", new File(URL_SS_BODY))
+        String url = "http://id.one-education.org"; //"http://10.0.0.53:5000"; //"http://192.168.1.4:5000";
+        new AsyncFileThread(url+uploadPath+"/large", new File(URL_SS_BODY))
                 .setFinishHandler(uploadCallback).start();
 
-        new AsyncFileThread("http://id.one-education.org/student-avatar/small", new File(URL_SS_HEAD))
+        new AsyncFileThread(url+uploadPath+"/small", new File(URL_SS_HEAD))
                 .setFinishHandler(uploadCallback).start();
     }
 
@@ -285,10 +302,17 @@ public class MainActivity extends Activity {
         avatarView.initialize(db, avatarConfig);
 
         for(int i=0; i< icons.length; i++) {
-            ImageView iv = new ImageView(MainActivity.this);
-            Drawable d = getResources().getDrawable(icons[i]);
-            iv.setImageDrawable(d);
-            selectPartView.addView(iv);
+            SVG s = db.getSVGForResource(icons[i]);
+
+            if(s==null) continue;
+
+            ImageView iv = new ImageView(getApplicationContext());
+            iv.setImageDrawable(s.createPictureDrawable());
+
+            //ImageView iv = new ImageView(MainActivity.this);
+            //Drawable d = getResources().getDrawable(icons[i]);
+            //iv.setImageDrawable(d);
+            selectPartView.addView(iv, new LayoutParams(MATCH_PARENT, (int)dipToPixels(180)));
         }
 
         new Thread(new Runnable() {
@@ -306,16 +330,17 @@ public class MainActivity extends Activity {
                 Util.debug("start making menu");
                 ArrayList<LinearLayout> arr = new ArrayList<>();
                 arr.add(makeSkinMenu());
+                arr.add(makeHairMenu());
+                arr.add(makeMenu(ConfigPart.sets, db.setAssets, "chooser"));
                 arr.add(makeMenu(ConfigPart.shirt, db.shirtAssets, "chooser"));
                 arr.add(makeMenu(ConfigPart.pants, db.pantsAssets, "chooser"));
                 arr.add(makeMenu(ConfigPart.shoes, db.shoeAssets, "chooser"));
                 arr.add(makeMenu(ConfigPart.glasses, db.glassesAssets, "chooser"));
                 arr.add(makeMenu(ConfigPart.hair, db.hairAssets, "chooser"));
-                arr.add(makeMenu(ConfigPart.sets, db.setAssets, "chooser"));
-                arr.add(makeHairMenu());
                 arr.add(makeMenu(ConfigPart.hats, db.hatAssets, "chooser"));
                 arr.add(makeMenu(ConfigPart.face, db.faceAssets, "chooser"));
                 arr.add(makeMenu(ConfigPart.bodyAcc, db.bodyAccAssets, "chooser"));
+                arr.add(makeMenu(ConfigPart.backgrounds, db.backgroundAssets, null));
                 Util.debug("end making menu");
 
                 for(int i=0; i< arr.size(); i++) {
@@ -345,19 +370,33 @@ public class MainActivity extends Activity {
 
 
 
-        XoDataProvider xoDataProvider = new XoDataProvider(this);
-        xoDataProvider.requestStudentData(new XoDataProvider.StudentDataCallback() {
+        xoDataProvider = new XoDataProvider(this);
+        xoDataProvider.requestStudentData(new XoDataProvider.DataCallback() {
             @Override
-            public void onStudentDataAvailable(final String studentData) {
-                Util.debug(studentData);
+            public void onDataAvailable(final String data) {
+                Util.debug(data);
                 try {
-                    JSONObject studentInfo = new JSONObject(studentData);
-                    studentToken = studentInfo.getString("token");
+                    JSONObject dataJson = new JSONObject(data);
+                    String key = dataJson.keys().next();
+                    JSONObject user = dataJson.getJSONObject(key);
+                    userToken = user.getString("token");
+                    if(key.equalsIgnoreCase("teacher")) {
+                        uploadHeader = "X-Teacher-Token";
+                        uploadPath = "/teacher-avatar";
+                    } else {
+                        uploadHeader = "X-Student-Token";
+                        uploadPath = "/student-avatar";
+                    }
                 } catch (JSONException e) {
                     Util.debug(e.getMessage());
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showNotLoginAlertDialog();
+                        }
+                    });
                 }
-
-                checkLastAvatar();
+                //checkLastAvatar();
             }
 
             @Override
@@ -366,8 +405,8 @@ public class MainActivity extends Activity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        //showNotLoginAlertDialog();
-                        checkLastAvatar();
+                        showNotLoginAlertDialog();
+                        //checkLastAvatar();
                     }
                 });
             }
@@ -429,7 +468,8 @@ public class MainActivity extends Activity {
                     public void onPositive(MaterialDialog dialog) {
                         dialog.dismiss();
                         //TODO : launch xo-id
-                        checkLastAvatar();
+                        xoDataProvider.launchLoginActivity(MainActivity.this);
+                        //checkLastAvatar();
                     }
 
                     @Override
@@ -721,7 +761,7 @@ public class MainActivity extends Activity {
 
     private abstract class Callback {
         public void reset() {}
-        public void onFinished(HttpResponse res) {}
+        public void onFinished(HttpResponse res, JSONObject resJson) {}
     }
 
     private class AsyncFileThread extends Thread {
@@ -746,8 +786,8 @@ public class MainActivity extends Activity {
                 HttpPost postRequest = new HttpPost(address);
                 postRequest.setHeader("X-Api-Key", "abc123");
                 postRequest.setHeader("X-Device-Id", Build.SERIAL);
-                postRequest.setHeader("X-Student-Token", studentToken);
-                avatarView.printMessage(Build.SERIAL + " / " + studentToken);
+                postRequest.setHeader(uploadHeader, userToken);
+                avatarView.printMessage(Build.SERIAL + " / " + userToken);
                 HttpEntity reqEntity = MultipartEntityBuilder.create().addBinaryBody("file", file).build();
                 postRequest.setEntity(reqEntity);
 
@@ -759,10 +799,11 @@ public class MainActivity extends Activity {
                     s = s.append(sResponse);
                 }
                 Util.debug("Response: " + s);
+                final JSONObject result = new JSONObject(s.toString());
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        callback.onFinished(response);
+                        callback.onFinished(response, result);
                     }
                 });
             } catch (Exception e) {

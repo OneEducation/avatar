@@ -34,8 +34,8 @@ android {
 
 dependencies {
     compile project(':android_client_library')
-    compile files('libs/svg-android.jar')
-    compile "com.android.support:appcompat-v7:21.0.+"
+    compile project(':svgandroid')
+    //compile "com.android.support:appcompat-v7:21.0.+"
     compile "com.shamanland:fab:0.0.6"
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'com.daimajia.easing:library:1.0.0@aar'

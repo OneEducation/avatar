@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="org.olpc.avatargen">
+    package="org.olpc.avatargen"
+    android:versionCode="001"
+    android:versionName="001">
     <application
         tools:replace="android:icon, theme"
        	android:icon="@drawable/icon"
