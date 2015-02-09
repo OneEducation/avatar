@@ -85,13 +85,13 @@ public class MainActivity extends Activity {
 
     private int[] icons = {                         // icon images for select parts menu
 			R.raw.skin_colour,
+            R.raw.hair_type,
             R.raw.hair_colour,
             R.raw.set,
 			R.raw.top,
             R.raw.bottoms,
             R.raw.shoes,
 			R.raw.eye_wear,
-			R.raw.hair_type,
             R.raw.hats,
             R.raw.hair_accessorie,  //face acc
             R.raw.body_accessorie,
@@ -330,13 +330,13 @@ public class MainActivity extends Activity {
                 Util.debug("start making menu");
                 ArrayList<LinearLayout> arr = new ArrayList<>();
                 arr.add(makeSkinMenu());
+                arr.add(makeMenu(ConfigPart.hair, db.hairAssets, "chooser"));
                 arr.add(makeHairMenu());
                 arr.add(makeMenu(ConfigPart.sets, db.setAssets, "chooser"));
                 arr.add(makeMenu(ConfigPart.shirt, db.shirtAssets, "chooser"));
                 arr.add(makeMenu(ConfigPart.pants, db.pantsAssets, "chooser"));
                 arr.add(makeMenu(ConfigPart.shoes, db.shoeAssets, "chooser"));
                 arr.add(makeMenu(ConfigPart.glasses, db.glassesAssets, "chooser"));
-                arr.add(makeMenu(ConfigPart.hair, db.hairAssets, "chooser"));
                 arr.add(makeMenu(ConfigPart.hats, db.hatAssets, "chooser"));
                 arr.add(makeMenu(ConfigPart.face, db.faceAssets, "chooser"));
                 arr.add(makeMenu(ConfigPart.bodyAcc, db.bodyAccAssets, "chooser"));
