@@ -1,4 +1,4 @@
-package org.olpc.avatargen;
+package org.oneedu.avatargen;
 
 import android.graphics.Picture;
 import android.graphics.RectF;

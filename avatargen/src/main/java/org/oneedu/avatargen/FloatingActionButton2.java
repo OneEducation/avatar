@@ -1,4 +1,4 @@
-package org.olpc.avatargen;
+package org.oneedu.avatargen;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;

@@ -1,4 +1,4 @@
-package org.olpc.avatargen;
+package org.oneedu.avatargen;
 
 import android.graphics.Picture;
 
@@ -44,7 +44,7 @@ public class AvatarConfig {
                 jsonObject.put(AssetDatabase.ConfigPart.shoes.name(), item);
                 jsonObject.put(AssetDatabase.ConfigPart.hats.name(), item);
                 jsonObject.put(AssetDatabase.ConfigPart.handAcc.name(), item);
-                jsonObject.put(AssetDatabase.ConfigPart.hair.name(), item);
+                //jsonObject.put(AssetDatabase.ConfigPart.hair.name(), item);
                 jsonObject.put(AssetDatabase.ConfigPart.bodyAcc.name(), item);
                 jsonObject.put(AssetDatabase.ConfigPart.beard.name(), item);
             } else {

@@ -1,4 +1,4 @@
-package org.olpc.avatargen;
+package org.oneedu.avatargen;
 
 public class Accessory implements Comparable<Accessory> {
 

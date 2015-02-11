@@ -1,4 +1,4 @@
-package org.olpc.avatargen;
+package org.oneedu.avatargen;
 
 import android.graphics.*;
 import android.view.animation.CycleInterpolator;
@@ -13,8 +13,8 @@ import java.util.*;
 
 import rx.functions.Action1;
 
-import static org.olpc.avatargen.Constants.*;
-import static org.olpc.avatargen.AssetDatabase.*;
+import static org.oneedu.avatargen.Constants.*;
+import static org.oneedu.avatargen.AssetDatabase.*;
 
 public class AvatarDrawer {
 

@@ -1,4 +1,4 @@
-package org.olpc.avatargen;
+package org.oneedu.avatargen;
 
 import android.content.res.AssetManager;
 import android.content.res.Resources;
@@ -8,7 +8,7 @@ import com.larvalabs.svgandroid.SVGParser;
 import java.io.IOException;
 import java.util.*;
 
-import static org.olpc.avatargen.Constants.*;
+import static org.oneedu.avatargen.Constants.*;
 
 public class AssetDatabase {
 

@@ -1,12 +1,12 @@
-package org.olpc.avatargen;
+package org.oneedu.avatargen;
 
 import static android.widget.LinearLayout.LayoutParams.*;
-import static org.olpc.avatargen.AssetDatabase.ASSET_HAIR;
-import static org.olpc.avatargen.AssetDatabase.HAIR_FRONT;
-import static org.olpc.avatargen.Constants.ANDROID_COLOR;
-import static org.olpc.avatargen.Constants.HAIR_COLOR_DEFAULT;
-import static org.olpc.avatargen.Constants.SKIN_COLORS;
-import static org.olpc.avatargen.Constants.HAIR_COLORS;
+import static org.oneedu.avatargen.AssetDatabase.ASSET_HAIR;
+import static org.oneedu.avatargen.AssetDatabase.HAIR_FRONT;
+import static org.oneedu.avatargen.Constants.ANDROID_COLOR;
+import static org.oneedu.avatargen.Constants.HAIR_COLOR_DEFAULT;
+import static org.oneedu.avatargen.Constants.SKIN_COLORS;
+import static org.oneedu.avatargen.Constants.HAIR_COLORS;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -30,6 +30,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -53,9 +55,10 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.CoreConnectionPNames;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.olpc.avatargen.AssetDatabase.ConfigPart;
+import org.oneedu.avatargen.AssetDatabase.ConfigPart;
 
 
 public class MainActivity extends Activity {
@@ -191,10 +194,31 @@ public class MainActivity extends Activity {
 	    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics);
 	}
 
+    private boolean checkOnline() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
+
     private void requestUpload() {
+        if(!checkOnline()) {
+            new MaterialDialog.Builder(MainActivity.this)
+                    .title("Caution")
+                    .content("Check your network status and retry.")
+                    .positiveText("Ok")
+                    .callback(new MaterialDialog.ButtonCallback() {
+                        @Override
+                        public void onPositive(MaterialDialog dialog) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .show();
+            return;
+        }
+
         progress.show();
         uploadCallback.reset();
-        String url = "http://id.one-education.org"; //"http://10.0.0.53:5000"; //"http://192.168.1.4:5000";
+        String url = "http://id.one-education.org"; //"http://10.0.0.53:5000";  //"http://192.168.1.4:5000";
         new AsyncFileThread(url+uploadPath+"/large", new File(URL_SS_BODY))
                 .setFinishHandler(uploadCallback).start();
 
@@ -368,49 +392,7 @@ public class MainActivity extends Activity {
 			}
 		});
 
-
-
         xoDataProvider = new XoDataProvider(this);
-        xoDataProvider.requestStudentData(new XoDataProvider.DataCallback() {
-            @Override
-            public void onDataAvailable(final String data) {
-                Util.debug(data);
-                try {
-                    JSONObject dataJson = new JSONObject(data);
-                    String key = dataJson.keys().next();
-                    JSONObject user = dataJson.getJSONObject(key);
-                    userToken = user.getString("token");
-                    if(key.equalsIgnoreCase("teacher")) {
-                        uploadHeader = "X-Teacher-Token";
-                        uploadPath = "/teacher-avatar";
-                    } else {
-                        uploadHeader = "X-Student-Token";
-                        uploadPath = "/student-avatar";
-                    }
-                } catch (JSONException e) {
-                    Util.debug(e.getMessage());
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showNotLoginAlertDialog();
-                        }
-                    });
-                }
-                //checkLastAvatar();
-            }
-
-            @Override
-            public void onError(String description) {
-                Util.debug("XoDataProvider error: " + description);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        showNotLoginAlertDialog();
-                        //checkLastAvatar();
-                    }
-                });
-            }
-        });
     }
 
     private void checkLastAvatar() {
@@ -783,6 +765,8 @@ public class MainActivity extends Activity {
 
             try {
                 HttpClient httpClient = new DefaultHttpClient();
+                httpClient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10 * 1000);
+                httpClient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, 10 * 1000);
                 HttpPost postRequest = new HttpPost(address);
                 postRequest.setHeader("X-Api-Key", "abc123");
                 postRequest.setHeader("X-Device-Id", Build.SERIAL);
@@ -812,5 +796,50 @@ public class MainActivity extends Activity {
             }
 
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        xoDataProvider.requestStudentData(new XoDataProvider.DataCallback() {
+            @Override
+            public void onDataAvailable(final String data) {
+                Util.debug(data);
+                try {
+                    JSONObject dataJson = new JSONObject(data);
+                    String key = dataJson.keys().next();
+                    JSONObject user = dataJson.getJSONObject(key);
+                    userToken = user.getString("token");
+                    if(key.equalsIgnoreCase("teacher")) {
+                        uploadHeader = "X-Teacher-Token";
+                        uploadPath = "/teacher-avatar";
+                    } else {
+                        uploadHeader = "X-Student-Token";
+                        uploadPath = "/student-avatar";
+                    }
+                } catch (JSONException e) {
+                    Util.debug(e.getMessage());
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showNotLoginAlertDialog();
+                        }
+                    });
+                }
+                //checkLastAvatar();
+            }
+
+            @Override
+            public void onError(String description) {
+                Util.debug("XoDataProvider error: " + description);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showNotLoginAlertDialog();
+                        //checkLastAvatar();
+                    }
+                });
+            }
+        });
     }
 }
