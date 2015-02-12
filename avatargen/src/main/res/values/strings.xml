@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Avatar Gen</string>
+    <string name="app_name">Avatar Creator</string>
     <string name="wallpaper_description">An Androidify wallpaper!</string>
     <string name="action_save">Save Avatar</string>
     <string name="action_settings">Settings</string>
