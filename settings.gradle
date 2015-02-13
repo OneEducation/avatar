@@ -1,1 +1,2 @@
 include ':avatargen', 'svgandroid', ':android_client_library'
+project(':android_client_library').projectDir = new File('xo-id-client-library/example/android_client_library')

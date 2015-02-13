@@ -22,9 +22,10 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.larvalabs.svgandroid.SVG;
-import com.xoid.xodatainterface.XoDataProvider;
+import org.oneedu.xoid.xodatainterface.XoDataProvider;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -48,6 +49,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ScrollView;
+import android.widget.Toast;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -449,9 +451,12 @@ public class MainActivity extends Activity {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
                         dialog.dismiss();
-                        //TODO : launch xo-id
-                        xoDataProvider.launchLoginActivity(MainActivity.this);
-                        //checkLastAvatar();
+                        try {
+                            xoDataProvider.launchLoginActivity(MainActivity.this);
+                        } catch (ActivityNotFoundException e) {
+                            Toast.makeText(getApplicationContext(), "XO-id is not installed!", Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
                     }
 
                     @Override
