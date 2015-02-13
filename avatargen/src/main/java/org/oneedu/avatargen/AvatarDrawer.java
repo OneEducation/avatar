@@ -754,11 +754,35 @@ public class AvatarDrawer {
                     canvas.restore();
 
                 }
-                if (pantsSkirt != null) {
-                	pantsSkirt.draw(canvas);
-                }
             }
             canvas.restore();
+
+            // Draw shoes
+            {
+                canvas.save();
+                canvas.translate(droidLegs.offsetX, droidLegs.offsetY);
+                canvas.scale(droidLegs.scaleX, droidLegs.scaleY, POINT_BOTTOM_OF_BODY.x, POINT_BOTTOM_OF_BODY.y);
+                // Draw shoes
+                {
+                    canvas.scale(1f, droidLegs.scaleX / droidLegs.scaleY, CENTER_X, POINT_CENTER_OF_LEFT_FOOT.y);
+                    if (shoes != null) {
+                        shoes.draw(canvas);
+                        canvas.save();
+                        canvas.scale(-1f, 1f, CENTER_X, TOP_Y);
+                        shoes.draw(canvas);
+                        canvas.restore();
+                    }
+                }
+                canvas.restore();
+            }
+
+            if (pantsSkirt != null) {
+                canvas.save();
+                canvas.translate(droidLegs.offsetX, droidLegs.offsetY);
+                canvas.scale(droidLegs.scaleX, 1, POINT_BOTTOM_OF_BODY.x, POINT_BOTTOM_OF_BODY.y);
+                pantsSkirt.draw(canvas);
+                canvas.restore();
+            }
         }
 
         // Draw body
@@ -966,24 +990,7 @@ public class AvatarDrawer {
 //            }
             canvas.restore();
         }
-        // Draw shoes
-        {
-            canvas.save();
-            canvas.translate(droidLegs.offsetX, droidLegs.offsetY);
-            canvas.scale(droidLegs.scaleX, droidLegs.scaleY, POINT_BOTTOM_OF_BODY.x, POINT_BOTTOM_OF_BODY.y);
-            // Draw shoes
-            {
-                canvas.scale(1f, droidLegs.scaleX / droidLegs.scaleY, CENTER_X, POINT_CENTER_OF_LEFT_FOOT.y);
-                if (shoes != null) {
-                    shoes.draw(canvas);
-                    canvas.save();
-                    canvas.scale(-1f, 1f, CENTER_X, TOP_Y);
-                    shoes.draw(canvas);
-                    canvas.restore();
-                }
-            }
-            canvas.restore();
-        }
+
         // Draw shirt top and body accessory
         {
             Picture accessory = bodyAccFront; //accessories.getPictureForType(Accessory.TYPE_BODY);

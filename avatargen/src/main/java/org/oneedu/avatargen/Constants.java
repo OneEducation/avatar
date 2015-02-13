@@ -114,8 +114,8 @@ public class Constants {
     public static final float RESIZE_ARMS_MAX_Y = 1.4f;
 
     public static final float RESIZE_LEGS_MIN_X = 0.5f;
-    public static final float RESIZE_LEGS_MAX_X = 1.2f;
-    public static final float RESIZE_LEGS_MIN_Y = 0.8f;
+    public static final float RESIZE_LEGS_MAX_X = 1.1f;
+    public static final float RESIZE_LEGS_MIN_Y = 1.0f;
     public static final float RESIZE_LEGS_MAX_Y = 2.0f;
 
     public static final int[] HAIR_COLORS =
