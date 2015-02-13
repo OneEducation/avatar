@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="org.oneedu.avatargen"
-    android:versionCode="001"
+    android:versionCode="100"
     android:versionName="1.0">
     <application
         tools:replace="android:icon, theme"

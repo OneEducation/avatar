@@ -1,0 +1,3 @@
+[submodule "xo-id-client-library"]
+	path = xo-id-client-library
+	url = https://github.com/OneEducation/xo-id-client-library.git
