@@ -1074,12 +1074,14 @@ public class AvatarDrawer {
 	        canvas.scale(droidHead.scaleX, droidHead.scaleY, POINT_BOTTOM_OF_HEAD.x, POINT_BOTTOM_OF_HEAD.y);
 	        droidHead.picture.draw(canvas);
 
+            // Draw face accessory
+            if (faceAcc != null) {
+                faceAcc.draw(canvas);
+            }
+            canvas.restore();
+
         }
-        // Draw face accessory
-        if (faceAcc != null) {
-            faceAcc.draw(canvas);
-        }
-        
+
         // Draw beard and hair in front, then glasses, then head accessory
         {
             //Picture accessory = accessories.getPictureForType(Accessory.TYPE_HEAD);
