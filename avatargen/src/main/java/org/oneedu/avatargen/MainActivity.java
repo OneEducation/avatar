@@ -9,12 +9,12 @@ import static org.oneedu.avatargen.Constants.SKIN_COLORS;
 import static org.oneedu.avatargen.Constants.HAIR_COLORS;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 
@@ -22,23 +22,27 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.larvalabs.svgandroid.SVG;
+
+import org.apache.http.entity.ContentType;
 import org.oneedu.xoid.xodatainterface.XoDataProvider;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.util.DisplayMetrics;
 
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -52,12 +56,7 @@ import android.widget.ScrollView;
 import android.widget.Toast;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.CoreConnectionPNames;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.oneedu.avatargen.AssetDatabase.ConfigPart;
@@ -75,13 +74,12 @@ public class MainActivity extends Activity {
     private ImageButton             backButton;             // back button - top / left area
     private ContentLoadingProgressBar progress;
     private String                  userToken;
-    private String                  uploadPath;
     private String                  uploadHeader;
 
     private Bitmap                  bitmapHead;             //
     private Bitmap                  bitmapBody;             //
-    final private String            URL_SS_BODY = Environment.getExternalStorageDirectory() + "/ss_body.png";
-    final private String            URL_SS_HEAD = Environment.getExternalStorageDirectory() + "/ss_head.png";
+    final private String            URL_SS_BODY = "ss_body.png";
+    final private String            URL_SS_HEAD = "ss_head.png";
     final private String            URL_CONFIG  = "config.json";
 
     private AvatarConfig            avatarConfig;
@@ -102,6 +100,7 @@ public class MainActivity extends Activity {
             R.raw.body_accessorie,
             R.raw.background
 	};
+    private String serverURL;
 
     enum Status {
         splash,         // for future
@@ -120,55 +119,56 @@ public class MainActivity extends Activity {
     private int         mColorGreen = 0xff80ba27;
 
     Callback uploadCallback = new Callback() {
-        int responseCount = 0;
-        int successCount = 0;
         String HeadServerURL;
         String BodyServerURL;
 
-        public void reset() {
-            responseCount = 0;
-            successCount = 0;
-        }
         @Override
-        public void onFinished(HttpResponse res, JSONObject resJson) {
-            responseCount++;
-            Util.debug("response code : "+res.getStatusLine().getStatusCode());
-            if(res.getStatusLine().getStatusCode() == 200) {
+        public void onFinished(int responseCode, String result) {
+            Util.debug("response code : " + responseCode);
+            final boolean success = responseCode == 200;
+
+            if(success) {
                 try {
-                    if(resJson.getJSONObject("ok").getString("name").equals("ss_head.png")) {
-                        HeadServerURL = resJson.getJSONObject("ok").getString("url");
-                    } else {
-                        BodyServerURL = resJson.getJSONObject("ok").getString("url");
-                    }
+                    Log.d("result", result);
+                    JSONObject resJson = new JSONObject(result);
+                    JSONObject files = resJson.getJSONObject("ok");
+                    HeadServerURL = files.getJSONObject("small").getString("url");
+                    BodyServerURL = files.getJSONObject("large").getString("url");
                 } catch(JSONException e) {
                     e.printStackTrace();
                 }
-
-                successCount++;
             }
 
-            if(responseCount == 2) {
-                progress.hide();
-                if(successCount == 2) {
-                    new MaterialDialog.Builder(MainActivity.this)
-                            .title("Success")
-                            .content("Avatar updated.")
-                            .positiveText("Done")
-                            .callback(new MaterialDialog.ButtonCallback() {
-                                @Override
-                                public void onPositive(MaterialDialog dialog) {
-                                    if (mRunMode == RunMode.from_xoid) {
-                                        Intent result = new Intent();
-                                        result.putExtra("URL_BODY", BodyServerURL);
-                                        result.putExtra("URL_HEAD", HeadServerURL);
-                                        setResult(Activity.RESULT_OK, result);
-                                    }
-                                    finish();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    executeUI(success);
+                }
+            });
+        }
+
+        private void executeUI(boolean success) {
+            progress.hide();
+            if(success) {
+                new MaterialDialog.Builder(MainActivity.this)
+                        .title("Success")
+                        .content("Avatar updated.")
+                        .positiveText("Done")
+                        .callback(new MaterialDialog.ButtonCallback() {
+                            @Override
+                            public void onPositive(MaterialDialog dialog) {
+                                if (mRunMode == RunMode.from_xoid) {
+                                    Intent result = new Intent();
+                                    result.putExtra("URL_BODY", BodyServerURL);
+                                    result.putExtra("URL_HEAD", HeadServerURL);
+                                    setResult(Activity.RESULT_OK, result);
                                 }
-                            })
-                            .show();
-                } else {
-                    new MaterialDialog.Builder(MainActivity.this)
+                                finish();
+                            }
+                        })
+                        .show();
+            } else {
+                new MaterialDialog.Builder(MainActivity.this)
                         .title("Failed")
                         .content("Would you like to retry?")
                         .positiveText("Retry")
@@ -185,7 +185,6 @@ public class MainActivity extends Activity {
                             }
                         })
                         .show();
-                }
             }
         }
     };
@@ -219,18 +218,11 @@ public class MainActivity extends Activity {
         }
 
         progress.show();
-        uploadCallback.reset();
-        String url = "http://id.one-education.org"; //"http://10.0.0.53:5000";  //"http://192.168.1.4:5000";
-        new AsyncFileThread(url+uploadPath+"/large", new File(URL_SS_BODY))
-                .setFinishHandler(uploadCallback).start();
-
-        new AsyncFileThread(url+uploadPath+"/small", new File(URL_SS_HEAD))
-                .setFinishHandler(uploadCallback).start();
+        new AsyncAvatarUploadThread(serverURL+"/avatar", uploadCallback).start();
     }
 
     @Override
     protected  void onDestroy() {
-        saveJson();
         super.onDestroy();
     }
 
@@ -286,6 +278,7 @@ public class MainActivity extends Activity {
                             .callback(new MaterialDialog.ButtonCallback() {
                                 @Override
                                 public void onPositive(MaterialDialog dialog) {
+                                    saveJson();
                                     saveScreen();
                                     requestUpload();
                                 }
@@ -397,47 +390,43 @@ public class MainActivity extends Activity {
         xoDataProvider = new XoDataProvider(this);
     }
 
-    private void checkLastAvatar() {
-        try {
-            final InputStream inputStream = openFileInput(URL_CONFIG);
+    private void checkLastAvatar(final Callback callback) {
+        progress.show();
 
-            if ( inputStream != null ) {
+        new Thread(new Runnable() {
+            int responseCode;
 
-                new MaterialDialog.Builder(MainActivity.this)
-                        .title("Avatar")
-                        .content("You have an avatar last time. Do you want continue or new?")
-                        .positiveText("New")
-                        .negativeText("Continue")
-                        .callback(new MaterialDialog.ButtonCallback() {
-                            @Override
-                            public void onPositive(MaterialDialog dialog) {
-                            }
+            @Override
+            public void run() {
+                HttpURLConnection conn;
+                final StringBuilder sbResult = new StringBuilder();
+                try {
+                    URL url = new URL(serverURL+"/app-data/avatar");
+                    conn = (HttpURLConnection)url.openConnection();
+                    conn.setRequestProperty("X-Api-Key", "abc123");
+                    conn.setRequestProperty("X-Device-Id", Build.SERIAL);
+                    conn.setRequestProperty(uploadHeader, userToken);
 
-                            @Override
-                            public void onNegative(MaterialDialog dialog) {
-                                try {
-                                    InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                                    BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                                    String receiveString = "";
-                                    StringBuilder stringBuilder = new StringBuilder();
+                    responseCode = conn.getResponseCode();
 
-                                    while ((receiveString = bufferedReader.readLine()) != null) {
-                                        stringBuilder.append(receiveString);
-                                    }
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        sbResult.append(line);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-                                    inputStream.close();
-                                    avatarConfig.loadConfig(new JSONObject(stringBuilder.toString()));
-                                } catch (Exception e) {
-                                    Util.debug(e.getMessage());
-                                }
-                            }
-                        })
-                        .show();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progress.hide();
+                        callback.onFinished(responseCode, sbResult.toString());
+                    }
+                });
             }
-        }
-        catch (Exception e) {
-            Util.debug("File not found: " + e.toString());
-        }
+        }).start();
     }
 
     private void showNotLoginAlertDialog() {
@@ -681,19 +670,14 @@ public class MainActivity extends Activity {
     }
 
     private void saveScreen() {
-        File file = new File(URL_SS_BODY);
-
         try {
-            bitmapBody.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(file));
+            bitmapBody.compress(Bitmap.CompressFormat.PNG, 100, openFileOutput(URL_SS_BODY, MODE_PRIVATE));
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-
-        File f2 = new File(URL_SS_HEAD);
-
         try {
-            bitmapHead.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(f2));
+            bitmapHead.compress(Bitmap.CompressFormat.PNG, 100, openFileOutput(URL_SS_HEAD, MODE_PRIVATE));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -747,80 +731,98 @@ public class MainActivity extends Activity {
     }
 
     private abstract class Callback {
-        public void reset() {}
-        public void onFinished(HttpResponse res, JSONObject resJson) {}
+        public void onFinished(int res, String resJson) {}
     }
 
-    private class AsyncFileThread extends Thread {
+    private class AsyncAvatarUploadThread extends Thread {
         String address;
-        File file;
         Callback callback;
 
-        public AsyncFileThread(String addr, File _file){
+        public AsyncAvatarUploadThread(String addr, Callback callback){
             address = addr;
-            file = _file;
-        }
-
-        public AsyncFileThread setFinishHandler(Callback callback) {
             this.callback = callback;
-            return this;
         }
 
         public void run(){
+            HttpURLConnection conn = null;
+            int responseCode = 0;
+            StringBuilder sbResult = new StringBuilder();
 
             try {
-                HttpClient httpClient = new DefaultHttpClient();
-                httpClient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10 * 1000);
-                httpClient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, 10 * 1000);
-                HttpPost postRequest = new HttpPost(address);
-                postRequest.setHeader("X-Api-Key", "abc123");
-                postRequest.setHeader("X-Device-Id", Build.SERIAL);
-                postRequest.setHeader(uploadHeader, userToken);
-                avatarView.printMessage(Build.SERIAL + " / " + userToken);
-                HttpEntity reqEntity = MultipartEntityBuilder.create().addBinaryBody("file", file).build();
-                postRequest.setEntity(reqEntity);
+                HttpEntity reqEntity = MultipartEntityBuilder.create()
+                        .addBinaryBody("large", openFileInput(URL_SS_BODY), ContentType.DEFAULT_BINARY, URL_SS_BODY)
+                        .addBinaryBody("small", openFileInput(URL_SS_HEAD), ContentType.DEFAULT_BINARY, URL_SS_HEAD)
+                        .addBinaryBody("json_config", openFileInput(URL_CONFIG), ContentType.APPLICATION_JSON, URL_CONFIG)
+                        .build();
 
-                final HttpResponse response = httpClient.execute(postRequest);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-                String sResponse;
-                StringBuilder s = new StringBuilder();
-                while ((sResponse = reader.readLine()) != null) {
-                    s = s.append(sResponse);
+                URL url = new URL(address);
+                conn = (HttpURLConnection)url.openConnection();
+                conn.setDoOutput(true);
+                conn.setConnectTimeout(10 * 1000);
+                conn.setRequestProperty("X-Api-Key", "abc123");
+                conn.setRequestProperty("X-Device-Id", Build.SERIAL);
+                conn.setRequestProperty(uploadHeader, userToken);
+                conn.setRequestProperty(reqEntity.getContentType().getName(), reqEntity.getContentType().getValue());
+
+                OutputStream os = conn.getOutputStream();
+                reqEntity.writeTo(os);
+                os.close();
+
+                responseCode = conn.getResponseCode();
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                String line = "";
+                while ((line = reader.readLine()) != null) {
+                    sbResult.append(line);
                 }
-                Util.debug("Response: " + s);
-                final JSONObject result = new JSONObject(s.toString());
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.onFinished(response, result);
-                    }
-                });
-            } catch (Exception e) {
+            } catch (IOException e) {
 
                 Util.debug(e.getMessage());
+            } finally {
+                if (conn != null) {
+                    conn.disconnect();
+                }
             }
 
+            callback.onFinished(responseCode, sbResult.toString());
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        // If xo-id need to be updated, do not get data
+        if (!checkXOIDVersion()) {
+            return;
+        }
+
         xoDataProvider.requestStudentData(new XoDataProvider.DataCallback() {
             @Override
             public void onDataAvailable(final String data) {
                 Util.debug(data);
+                boolean needCheckAvatar = false;
+                if (serverURL == null) {
+                    needCheckAvatar = true;
+                }
                 try {
                     JSONObject dataJson = new JSONObject(data);
-                    String key = dataJson.keys().next();
-                    JSONObject user = dataJson.getJSONObject(key);
+                    serverURL = dataJson.getString("serverURL");
+
+                    JSONObject userData = dataJson.getJSONObject("user");
+                    String userType = userData.getString("type");
+                    JSONObject user = userData.getJSONObject(userType);
+
                     userToken = user.getString("token");
-                    if(key.equalsIgnoreCase("teacher")) {
+
+                    if(userType.equalsIgnoreCase("teacher")) {
                         uploadHeader = "X-Teacher-Token";
-                        uploadPath = "/teacher-avatar";
-                    } else {
+                    } else if (userType.equalsIgnoreCase("student")) {
                         uploadHeader = "X-Student-Token";
-                        uploadPath = "/student-avatar";
+                    } else if (userType.equalsIgnoreCase("public_user")) {
+                        uploadHeader = "X-Public-User-Token";
+                    } else {
+                        throw new JSONException("userType is not valid");
                     }
                 } catch (JSONException e) {
                     Util.debug(e.getMessage());
@@ -831,7 +833,22 @@ public class MainActivity extends Activity {
                         }
                     });
                 }
-                //checkLastAvatar();
+
+                if (needCheckAvatar) {
+                    checkLastAvatar(new Callback() {
+                        @Override
+                        public void onFinished(int responseCode, String resJson) {
+                            try {
+                                if (responseCode == 200) {
+                                    JSONObject config = new JSONObject(resJson);
+                                    showLoadAvatarDlg(config);
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                }
             }
 
             @Override
@@ -841,10 +858,74 @@ public class MainActivity extends Activity {
                     @Override
                     public void run() {
                         showNotLoginAlertDialog();
-                        //checkLastAvatar();
                     }
                 });
             }
         });
+    }
+
+    private int getVersionCode(String packageName) {
+        PackageManager packageManager = getPackageManager();
+        try {
+            return packageManager.getPackageInfo(packageName, 0).versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return Integer.MAX_VALUE;
+        }
+    }
+
+    private boolean checkXOIDVersion() {
+        boolean xoid = getVersionCode("org.oneedu.xoid") <= 110;
+
+        if (!xoid) {
+            return true;
+        }
+
+        new AlertDialog.Builder(this).setTitle("Warning")
+                .setCancelable(false)
+                .setMessage("You need to upgrade XO-ID. Click OK to update XO-ID.")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent();
+                        intent.setClassName("org.oneedu.appuniverse","org.oneedu.appuniverse.FDroid");
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.putExtra("extraTab", true);
+                        startActivity(intent);
+                    }
+                }).create().show();
+
+        return false;
+    }
+
+    private void showLoadAvatarDlg(final JSONObject config) {
+        new MaterialDialog.Builder(MainActivity.this)
+                .title("XO-ID")
+                .content("Do you want to load current avatar or start new one?")
+                .positiveText("Load")
+                .negativeText("New")
+                .cancelable(false)
+                .callback(new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        dialog.dismiss();
+                        avatarConfig.loadConfig(config);
+                    }
+
+                    @Override
+                    public void onNegative(MaterialDialog dialog) {
+                        dialog.dismiss();
+                    }
+                })
+                .show();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        // Reset serverURL to re-check avatar from server.
+        // It's because onNewIntent means it's not just resuming.
+        serverURL = null;
     }
 }

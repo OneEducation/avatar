@@ -1,23 +1,30 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        release {
+            keyAlias 'OneEdu'
+            keyPassword 'Olpcau2015'
+            storeFile file('/Users/dongseok0/org.oneedu.signing_key.jks')
+            storePassword 'Olpcau2015'
+        }
+    }
     compileSdkVersion 21
     buildToolsVersion "21.1.1"
-
     defaultConfig {
         applicationId "org.oneedu.avatargen"
         minSdkVersion 18
         targetSdkVersion 21
+        versionCode 110
+        versionName "1.1.0"
     }
-
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            signingConfig signingConfigs.release
         }
     }
-
-
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES.txt'
         exclude 'META-INF/LICENSE.txt'
@@ -36,13 +43,13 @@ dependencies {
     compile project(':android_client_library')
     compile project(':svgandroid')
     //compile "com.android.support:appcompat-v7:21.0.+"
-    compile "com.shamanland:fab:0.0.6"
+    compile 'com.shamanland:fab:0.0.6'
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'com.daimajia.easing:library:1.0.0@aar'
     compile 'com.daimajia.androidanimations:library:1.1.3@aar'
     compile 'org.apache.httpcomponents:httpclient:4.3.6'
     compile 'org.apache.httpcomponents:httpcore:4.3.3'
-    compile "org.apache.httpcomponents:httpmime:4.3.6"
+    compile 'org.apache.httpcomponents:httpmime:4.3.6'
     compile 'com.afollestad:material-dialogs:0.5.7'
     compile 'io.reactivex:rxandroid:0.24.0'
 }
