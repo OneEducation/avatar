@@ -4,7 +4,7 @@
     package="org.oneedu.avatargen">
     <application
         tools:replace="android:icon, theme"
-       	android:icon="@drawable/icon"
+       	android:icon="@mipmap/ic_launcher"
        	android:hardwareAccelerated="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity
